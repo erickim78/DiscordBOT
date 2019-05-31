@@ -8,7 +8,7 @@ client = commands.Bot( command_prefix = '!')
 
 @client.event
 async def on_ready():
-    print('Yes Bossu.')
+    print('BOT is running.')
 
 @client.command()
 async def ping(ctx):
@@ -20,6 +20,3 @@ with open( 'config.json') as config_file:
 
 token = data['token']
 client.run(token)
-print(token)
-
-sys.exit(0)
