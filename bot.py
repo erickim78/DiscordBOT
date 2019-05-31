@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 import json
-import sys
+import osu
 
 client = commands.Bot( command_prefix = '!')
 
@@ -16,7 +16,7 @@ async def ping(ctx):
 
 
 with open( 'config.json') as config_file:
-    data = json.load( config_file )
+    temp = json.load( config_file )
 
-token = data['token']
+token = temp['token']
 client.run(token)
