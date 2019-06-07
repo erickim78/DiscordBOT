@@ -65,7 +65,7 @@ async def on_message( message ):
             
             await message.channel.send("Username: " )
 
-        elif message.content.find("!pokemonquiz") != -1 :
+        elif message.content.find("!qqq") != -1 :
             personalities = [  ["BOLD", 0], ["QUIRKY", 0], ["TIMID", 0], ["NAIVE", 0], ["HASTY", 0] ]
 
             questions = [1,2,3,4,5]
