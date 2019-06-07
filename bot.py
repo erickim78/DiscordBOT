@@ -67,11 +67,20 @@ async def on_message( message ):
 
         elif message.content.find("!qqq") != -1 :
             personalities = [  ["BOLD", 0], ["QUIRKY", 0], ["TIMID", 0], ["NAIVE", 0], ["HASTY", 0] ]
-
             questions = [1,2,3,4,5]
+
+            def check(author):
+                def check2( answer ):
+                    if answer.author != message.author:
+                        return False
+                    try:
+                        int(answer.content)
+                        return True
+                    except ValueError :
+                        return False
+                return check2
             
             count = 0
-
             while count < 3 :
 
                 current = random.choice( questions )
@@ -80,17 +89,6 @@ async def on_message( message ):
                     await message.channel.send("Have you ever thought that if you dug in your backyard you could find buried treasure? (Send the number corresponding to your answer.)\n\n1) Yes.\n2) No.")          
                     done = False
                     while done == False :
-
-                        def check(author):
-                            def check2( answer ):
-                                if answer.author != message.author:
-                                    return False
-                                try:
-                                    int(answer.content)
-                                    return True
-                                except ValueError :
-                                    return False
-                            return check2
 
                         temp = await client.wait_for('message', check=check(message.author) )
 
@@ -117,17 +115,6 @@ async def on_message( message ):
                     done = False
                     while done == False :
 
-                        def check(author):
-                            def check2( answer ):
-                                if answer.author != message.author:
-                                    return False
-                                try:
-                                    int(answer.content)
-                                    return True
-                                except ValueError :
-                                    return False
-                            return check2
-
                         temp = await client.wait_for('message', check=check(message.author) )
 
                         if temp.content.find("1") != -1 :
@@ -152,17 +139,6 @@ async def on_message( message ):
                     await message.channel.send("If you saw someone doing something bad, could you scold them? \n\n1) Of Course.\n2) Not Really.")          
                     done = False
                     while done == False :
-
-                        def check(author):
-                            def check2( answer ):
-                                if answer.author != message.author:
-                                    return False
-                                try:
-                                    int(answer.content)
-                                    return True
-                                except ValueError :
-                                    return False
-                            return check2
 
                         temp = await client.wait_for('message', check=check(message.author) )
 
@@ -189,17 +165,6 @@ async def on_message( message ):
                     done = False
                     while done == False :
 
-                        def check(author):
-                            def check2( answer ):
-                                if answer.author != message.author:
-                                    return False
-                                try:
-                                    int(answer.content)
-                                    return True
-                                except ValueError :
-                                    return False
-                            return check2
-
                         temp = await client.wait_for('message', check=check(message.author) )
 
                         if temp.content.find("1") != -1 :
@@ -224,17 +189,6 @@ async def on_message( message ):
                     await message.channel.send("You're hiking up a mountain when you reach diverging paths. Which kind do you take? \n\n1) Narrow.\n2) Wide.")          
                     done = False
                     while done == False :
-
-                        def check(author):
-                            def check2( answer ):
-                                if answer.author != message.author:
-                                    return False
-                                try:
-                                    int(answer.content)
-                                    return True
-                                except ValueError :
-                                    return False
-                            return check2
 
                         temp = await client.wait_for('message', check=check(message.author) )
 
