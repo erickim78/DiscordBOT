@@ -66,18 +66,18 @@ async def on_message( message ):
             await message.channel.send("Username: " )
 
         elif message.content.find("!pokemonquiz") != -1 :
-            personalities = [  ["bold", 0], ["brave", 0], ["calm", 0], ["docile", 0], ["hardy", 0], ["hasty", 0], ["impish", 0], ["jolly", 0], ["lonely", 0],
-             ["naive", 0],  ["quiet", 0], ["quirky", 0], ["rash", 0], ["relaxed", 0], ["sassy", 0], ["timid", 0] ]
+            personalities = [  ["BOLD", 0], ["QUIRKY", 0], ["TIMID", 0], ["NAIVE", 0], ["HASTY", 0] ]
 
-            questions = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
+            questions = [1,2,3,4,5]
             
             count = 0
 
-            while count < 9 :
+            while count < 3 :
+
                 current = random.choice( questions )
 
-                if random.choice( questions ) == 1 :
-                    await message.channel.send("Have you ever blurted something out without thinking about the consequences first? (Send the number corresponding to your answer.)\n\n1) Yes.\n2) No.")          
+                if current == 1 :
+                    await message.channel.send("Have you ever thought that if you dug in your backyard you could find buried treasure? (Send the number corresponding to your answer.)\n\n1) Yes.\n2) No.")          
                     done = False
                     while done == False :
 
@@ -95,23 +95,178 @@ async def on_message( message ):
                         temp = await client.wait_for('message', check=check(message.author) )
 
                         if temp.content.find("1") != -1 :
-                            personalities[8][1] += 1
-                            personalities[13][1] += 1
-                            done == True
+                            personalities[3][1] += 1
+                            done = True
                         elif temp.content.find("2") != -1 :
-                            personalities[4][1] += 1
+                            personalities[2][1] += 1
                             done = True
                         else :
                             await temp.channel.send("Invalid Response, Try Again.")
-                    questions.pop(0)
+
+                    i = 0
+                    for x in questions:
+                        if current == x :
+                            questions.pop(i)
+                        else :
+                            i += 1
+
                     count += 1
-                elif random.choice( questions ) == 2 :
+
+                elif current == 2 :
+                    await message.channel.send("You discover a beat-up-looking treasure chest in some ruins. What do you do? \n\n1) Open It!\n2) Get help opening it.")          
+                    done = False
+                    while done == False :
+
+                        def check(author):
+                            def check2( answer ):
+                                if answer.author != message.author:
+                                    return False
+                                try:
+                                    int(answer.content)
+                                    return True
+                                except ValueError :
+                                    return False
+                            return check2
+
+                        temp = await client.wait_for('message', check=check(message.author) )
+
+                        if temp.content.find("1") != -1 :
+                            personalities[0][1] += 1
+                            done = True
+                        elif temp.content.find("2") != -1 :
+                            personalities[2][1] += 1
+                            done = True
+                        else :
+                            await temp.channel.send("Invalid Response, Try Again.")
+
+                    i = 0
+                    for x in questions:
+                        if current == x :
+                            questions.pop(i)
+                        else :
+                            i += 1
+
                     count += 1
+
+                elif current == 3 :
+                    await message.channel.send("If you saw someone doing something bad, could you scold them? \n\n1) Of Course.\n2) Not Really.")          
+                    done = False
+                    while done == False :
+
+                        def check(author):
+                            def check2( answer ):
+                                if answer.author != message.author:
+                                    return False
+                                try:
+                                    int(answer.content)
+                                    return True
+                                except ValueError :
+                                    return False
+                            return check2
+
+                        temp = await client.wait_for('message', check=check(message.author) )
+
+                        if temp.content.find("1") != -1 :
+                            personalities[0][1] += 1
+                            done = True
+                        elif temp.content.find("2") != -1 :
+                            personalities[2][1] += 1
+                            done = True
+                        else :
+                            await temp.channel.send("Invalid Response, Try Again.")
+
+                    i = 0
+                    for x in questions:
+                        if current == x :
+                            questions.pop(i)
+                        else :
+                            i += 1
+
+                    count += 1
+
+                elif current == 4 :
+                    await message.channel.send("Are you truly sincere when you apologize? \n\n1) Of Course.\n2) That's not easy to admit.")          
+                    done = False
+                    while done == False :
+
+                        def check(author):
+                            def check2( answer ):
+                                if answer.author != message.author:
+                                    return False
+                                try:
+                                    int(answer.content)
+                                    return True
+                                except ValueError :
+                                    return False
+                            return check2
+
+                        temp = await client.wait_for('message', check=check(message.author) )
+
+                        if temp.content.find("1") != -1 :
+                            personalities[0][1] += 1
+                            done = True
+                        elif temp.content.find("2") != -1 :
+                            personalities[2][1] += 2
+                            done = True
+                        else :
+                            await temp.channel.send("Invalid Response, Try Again.")
+
+                    i = 0
+                    for x in questions:
+                        if current == x :
+                            questions.pop(i)
+                        else :
+                            i += 1
+
+                    count += 1
+
+                elif current == 5 :
+                    await message.channel.send("You're hiking up a mountain when you reach diverging paths. Which kind do you take? \n\n1) Narrow.\n2) Wide.")          
+                    done = False
+                    while done == False :
+
+                        def check(author):
+                            def check2( answer ):
+                                if answer.author != message.author:
+                                    return False
+                                try:
+                                    int(answer.content)
+                                    return True
+                                except ValueError :
+                                    return False
+                            return check2
+
+                        temp = await client.wait_for('message', check=check(message.author) )
+
+                        if temp.content.find("1") != -1 :
+                            personalities[3][1] += 1
+                            done = True
+                        elif temp.content.find("2") != -1 :
+                            personalities[2][1] += 1
+                            personalities[1][1] += 2
+                            done = True
+                        else :
+                            await temp.channel.send("Invalid Response, Try Again.")
+
+                    i = 0
+                    for x in questions:
+                        if current == x :
+                            questions.pop(i)
+                        else :
+                            i += 1
+                    
+                    count += 1
+                #print( personalities[8][1] )
+            
+            rand = random.randint(0,4)
+            nature = personalities[rand]
+            for x in personalities :
+                if x[1] > nature[1] :
+                    nature = x
+
+            await message.channel.send(f"You are the {nature[0]} type.")
 
                 
-
-                
-
         
         #elif message.content.find("!")   
 
