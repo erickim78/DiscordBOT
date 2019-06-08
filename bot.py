@@ -65,7 +65,7 @@ async def on_message( message ):
 
     elif channelcheck and message.content.find("!qqq") != -1 :
         personalities = [  ["BOLD", 0], ["QUIRKY", 0], ["TIMID", 0], ["NAIVE", 0], ["HASTY", 0] ]
-        questions = [0,1,2,3,4,5,6,7,8,9,10,11]
+        questions = [0,1,2,3,4,5,6,7,8,9,10,11,12]
 
         def check(author):
             def check2( answer ):
