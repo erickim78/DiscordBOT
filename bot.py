@@ -111,6 +111,7 @@ async def on_message( message ):
                         done = True
                     elif temp.content.find("3") != -1 :
                         personalities[2][1] += 1
+                        done = True
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
 
@@ -191,6 +192,7 @@ async def on_message( message ):
                         done = True
                     elif temp.content.find("3") != -1 :
                         personalities[1][1] += 1
+                        done = True
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
 
@@ -209,6 +211,7 @@ async def on_message( message ):
                         done = True
                     elif temp.content.find("3") != -1 :
                         personalities[2][1] += 1
+                        done = True
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
 
@@ -228,6 +231,7 @@ async def on_message( message ):
                         done = True
                     elif temp.content.find("3") != -1 :
                         personalities[2][1] += 1
+                        done = True
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
             
@@ -246,11 +250,12 @@ async def on_message( message ):
                         done = True
                     elif temp.content.find("3") != -1 :
                         personalities[0][1] += 1
+                        done = True
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
 
             elif current == 10 :
-                await message.channel.send("You're eating at a very fancy restaurant known for its food. Which course do you select? \n\n1) Whatever is cheapest.\n2) Healthy fish.\n3) Anything, it's all good.")          
+                await message.channel.send("You're eating at a very fancy restaurant known for its food. Which course do you select? \n\n1) Whatever is cheapest.\n2) Healthy fish.\n3) Prime Steak, enjoy the experience. \n4) Anything, it's all good.")          
                 done = False
                 while done == False :
 
@@ -262,8 +267,11 @@ async def on_message( message ):
                         personalities[0][1] -= 1
                         done = True
                     elif temp.content.find("3") != -1 :
+                        personalities[0][1] += 1
+                    elif temp.content.find("4") != -1 :
                         personalities[2][1] += 1
                         personalities[3][1] += 2
+                        done = True
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
 
@@ -282,6 +290,7 @@ async def on_message( message ):
                     elif temp.content.find("3") != -1 :
                         personalities[2][1] += 1
                         personalities[3][1] += 2
+                        done = True
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
 
@@ -301,6 +310,7 @@ async def on_message( message ):
                         done = True
                     elif temp.content.find("3") != -1 :
                         personalities[2][1] += 1
+                        done = True
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
 
