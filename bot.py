@@ -286,20 +286,21 @@ async def on_message( message ):
                         await temp.channel.send("Invalid Response, Try Again.")
 
             elif current == 12 :
-                await message.channel.send("You find something at a great bargain price. What do you do? \n\n1) Buy it right away.\n2) Think about whether you need it.\n3) Demand an even bigger discount.")          
+                await message.channel.send("You've been handed a large bag as a souvenir. What do you do? \n\n1) Shake it.\n2) Open it.\n3) Wait until I get home to open it.")          
                 done = False
                 while done == False :
 
                     temp = await client.wait_for('message', check=check(message.author) )
                     if temp.content.find("1") != -1 :
+                        personalities[3][1] += 1
                         personalities[1][1] += 1
                         done = True
                     elif temp.content.find("2") != -1 :
-                        personalities[0][1] -= 1
+                        personalities[4][1] += 2
+                        personalities[0][1] += 1
                         done = True
                     elif temp.content.find("3") != -1 :
                         personalities[2][1] += 1
-                        personalities[3][1] += 2
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
 
