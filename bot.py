@@ -89,7 +89,8 @@ async def on_message( message ):
 
                     temp = await client.wait_for('message', check=check(message.author) )
                     if temp.content.find("1") != -1 :
-                        personalities[3][1] += 1
+                        personalities[3][1] += 2
+                        personalities[1][1] += 1
                         done = True
                     elif temp.content.find("2") != -1 :
                         personalities[2][1] += 1
@@ -104,13 +105,14 @@ async def on_message( message ):
 
                     temp = await client.wait_for('message', check=check(message.author) )
                     if temp.content.find("1") != -1 :
-                        personalities[0][1] += 2
+                        personalities[0][1] += 1
                         done = True
                     elif temp.content.find("2") != -1 :
                         personalities[4][1] += 1
+                        personalities[1][1] += 1
                         done = True
                     elif temp.content.find("3") != -1 :
-                        personalities[2][1] += 1
+                        personalities[2][1] += 2
                         done = True
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
@@ -123,9 +125,11 @@ async def on_message( message ):
                     temp = await client.wait_for('message', check=check(message.author) )
                     if temp.content.find("1") != -1 :
                         personalities[0][1] += 1
+                        personalities[4][1] += 2
                         done = True
                     elif temp.content.find("2") != -1 :
                         personalities[2][1] += 1
+                        personalities[4][1] -= 1
                         done = True
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
@@ -170,6 +174,7 @@ async def on_message( message ):
                     if temp.content.find("1") != -1 :
                         personalities[3][1] += 2
                         personalities[4][1] += 1
+                        personalities[1][1] += 1
                         done = True
                     elif temp.content.find("2") != -1 :
                         personalities[2][1] += 1
@@ -185,7 +190,7 @@ async def on_message( message ):
 
                     temp = await client.wait_for('message', check=check(message.author) )
                     if temp.content.find("1") != -1 :
-                        personalities[0][1] += 2
+                        personalities[0][1] += 1
                         done = True
                     elif temp.content.find("2") != -1 :
                         personalities[2][1] += 2
@@ -203,7 +208,8 @@ async def on_message( message ):
 
                     temp = await client.wait_for('message', check=check(message.author) )
                     if temp.content.find("1") != -1 :
-                        personalities[4][1] += 1
+                        personalities[4][1] += 2
+                        personalities[1][1] += 1
                         done = True
                     elif temp.content.find("2") != -1 :
                         personalities[0][1] += 1
@@ -265,9 +271,11 @@ async def on_message( message ):
                         done = True
                     elif temp.content.find("2") != -1 :
                         personalities[0][1] -= 1
+                        personalities[1][1] += 2
                         done = True
                     elif temp.content.find("3") != -1 :
                         personalities[0][1] += 1
+                        done = True
                     elif temp.content.find("4") != -1 :
                         personalities[2][1] += 1
                         personalities[3][1] += 2
@@ -302,7 +310,7 @@ async def on_message( message ):
                     temp = await client.wait_for('message', check=check(message.author) )
                     if temp.content.find("1") != -1 :
                         personalities[3][1] += 1
-                        personalities[1][1] += 1
+                        personalities[1][1] += 2
                         done = True
                     elif temp.content.find("2") != -1 :
                         personalities[4][1] += 2
