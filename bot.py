@@ -34,6 +34,18 @@ async def on_ready():
 #Declare List of Eligible Command Channels
 allowed = ["gamingstats", "statsbot"]
 
+#Commands using prefix
+@client.command( pass_context = True )
+async def ping(ctx):
+    await ctx.channel.send(f' {round(client.latency*1000)} MS')
+
+@client.command( pass_context = True )
+async def join( self, ctx, *, channel: discord.VoiceChannel):
+    if ctx.voice_client is not None :
+        return await ctx.voice_client.move_to( channel )
+
+    await channel.connect()
+
 #Text Commands
 @client.event
 async def on_message( message ):
@@ -99,7 +111,7 @@ async def on_message( message ):
                         await temp.channel.send("Invalid Response, Try Again.")
 
             elif current == 1 :
-                await message.channel.send("You're in class when you realize that you really have to go to the restroom! What do you do? \n\n1) Ask for permission to leave.\n2) Sneak out.\n3) Hold on until class ends.")          
+                await message.channel.send("You're in class when you realize that you really have to go to the restroom. What do you do? \n\n1) Ask for permission to leave.\n2) Sneak out.\n3) Hold on until class ends.")          
                 done = False
                 while done == False :
 
@@ -209,11 +221,11 @@ async def on_message( message ):
                     temp = await client.wait_for('message', check=check(message.author) )
                     if temp.content.find("1") != -1 :
                         personalities[4][1] += 2
+                        personalities[3][1] += 1
                         personalities[1][1] += 1
                         done = True
                     elif temp.content.find("2") != -1 :
                         personalities[0][1] += 1
-                        personalities[3][1] += 2
                         done = True
                     elif temp.content.find("3") != -1 :
                         personalities[2][1] += 1
@@ -242,20 +254,23 @@ async def on_message( message ):
                         await temp.channel.send("Invalid Response, Try Again.")
             
             elif current == 9 :
-                await message.channel.send("You see a cake that is past its expiration date, but only by one day. What do you do? \n\n1) Not a problem, eat it anyway.\n2) Think about it briefly, then decide.\n3) Get someone to try it first.")          
+                await message.channel.send("You see a cake that is past its expiration date, but only by one day. What do you do? \n\n1) Not a problem, eat it anyway.\n2) Think about it briefly, then decide.\n3) Get someone to try it first. \n4) Refuse to eat it.")          
                 done = False
                 while done == False :
 
                     temp = await client.wait_for('message', check=check(message.author) )
                     if temp.content.find("1") != -1 :
                         personalities[4][1] += 2
-                        personalities[1][1] += 1
                         done = True
                     elif temp.content.find("2") != -1 :
                         personalities[2][1] += 1
                         done = True
                     elif temp.content.find("3") != -1 :
                         personalities[0][1] += 1
+                        done = True
+                    elif temp.content.find("4") != -1 :
+                        personalities[0][1] += 1
+                        personalities[1][1] += 1
                         done = True
                     else :
                         await temp.channel.send("Invalid Response, Try Again.")
@@ -291,9 +306,10 @@ async def on_message( message ):
                     temp = await client.wait_for('message', check=check(message.author) )
                     if temp.content.find("1") != -1 :
                         personalities[1][1] += 1
+                        personalities[4][1] += 2
                         done = True
                     elif temp.content.find("2") != -1 :
-                        personalities[0][1] -= 1
+                        personalities[4][1] -= 1
                         done = True
                     elif temp.content.find("3") != -1 :
                         personalities[2][1] += 1
@@ -342,10 +358,7 @@ async def on_message( message ):
         #Send Nature to Discord Chat
         await message.channel.send(f"You are the {nature[0]} type.")
 
-
-@client.command
-async def ping(ctx):
-    await ctx.send(f'{round(client.latency*1000)} MS')
+    await client.process_commands( message )
 
 token = config['token']
 client.run(token)
