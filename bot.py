@@ -12,6 +12,7 @@ from jikanpy import Jikan
 import json
 import pprint
 import random
+#import PyNaCl
 
 #Config File Usage
 with open( 'config.json') as config_file:
@@ -40,11 +41,11 @@ async def ping(ctx):
     await ctx.channel.send(f' {round(client.latency*1000)} MS')
 
 @client.command( pass_context = True )
-async def join( self, ctx, *, channel: discord.VoiceChannel):
-    if ctx.voice_client is not None :
-        return await ctx.voice_client.move_to( channel )
+async def join(ctx):
+    user = ctx.message.author
+    voicechannel = discord.utils.get(ctx.guild.channels, name= 'The Fireplace' )
+    await voicechannel.connect()
 
-    await channel.connect()
 
 #Text Commands
 @client.event
