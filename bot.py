@@ -1,6 +1,7 @@
 #Importing Discord 
 import discord
 from discord.ext import commands
+from discord.utils import get
 
 #Importing OsuAPI Python Wrapper
 import asyncio
@@ -12,6 +13,9 @@ from jikanpy import Jikan
 import json
 import pprint
 import random
+import youtube_dl
+import os
+#import PyNaCl
 
 #Config File Usage
 with open( 'config.json') as config_file:
@@ -20,7 +24,7 @@ with open( 'config.json') as config_file:
 apikey = config['osuapikey']
 
 #Instantiate API
-osu = OsuApi(apikey)
+osu_a = OsuApi(apikey)
 mal = Jikan()
 
 client = commands.Bot( command_prefix = '!')
@@ -37,14 +41,96 @@ allowed = ["gamingstats", "statsbot"]
 #Commands using prefix
 @client.command( pass_context = True )
 async def ping(ctx):
-    await ctx.channel.send(f' {round(client.latency*1000)} MS')
+    await ctx.send(f' {round(client.latency*1000)} MS')
 
-@client.command( pass_context = True )
-async def join( self, ctx, *, channel: discord.VoiceChannel):
-    if ctx.voice_client is not None :
-        return await ctx.voice_client.move_to( channel )
+#@client.command( pass_context = True, aliases=['h'] )
+#async def help(ctx):
+#    await ctx.send("!join: Summon bot to current channel.\n!play 'url': Plays the audio from the given youtube url.\n!stop: Stops currently playing audio.\nleave: Disconnects bot from the current channel.\n")
 
-    await channel.connect()
+@client.command( pass_context = True, aliases= ['summon'])
+async def join(ctx):
+    global voice
+    currentchannel = ctx.message.author.voice.channel
+    voice = get( client.voice_clients, guild=ctx.guild )
+
+    if voice and voice.is_connected():
+        await voice.move_to( currentchannel )
+    else:
+        voice = await currentchannel.connect()
+        print(f'The bot has connected to {currentchannel}')
+
+        voice.play( discord.FFmpegPCMAudio("join.wav") )
+        voice.source = discord.PCMVolumeTransformer( voice.source )
+        voice.source.volume = 0.80
+
+    #await voice.disconnect()
+
+@client.command( pass_context = True, aliases = ['exit'])
+async def leave(ctx):
+    voice = get( client.voice_clients, guild=ctx.guild )
+
+    if voice and voice.is_connected():
+        await voice.disconnect()
+        print("The bot has disconnected from voice chat")
+
+@client.command( pass_context = True, aliases = ['p'])
+async def play(ctx, url: str):
+    await ctx.send("Searching...")
+
+    localsong = os.path.isfile("song.mp3")
+    try:
+        if localsong:
+            os.remove("song.mp3")
+    except PermissionError:
+        print("Tried to delete currently playing song")
+        return
+
+    voice = get(client.voice_clients, guild= ctx.guild)
+
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+    }
+
+    with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
+        ydl.download( [url] )
+
+    for file in os.listdir("./"):
+        if file.endswith(".mp3"):
+            os.rename(file, "song.mp3")
+
+    await ctx.send("Now Playing")
+    voice.play( discord.FFmpegPCMAudio("song.mp3") )
+    voice.source = discord.PCMVolumeTransformer( voice.source )
+    voice.source.volume = 0.45
+
+@client.command( pass_contexxt = True )
+async def stop(ctx):
+    voice = get(client.voice_clients, guild= ctx.guild)
+    await ctx.send("Stopping")
+    if voice and voice.is_playing():
+        voice.stop()
+
+
+@client.command( pass_context = True ) 
+async def osu(ctx, username: str):
+    user = await osu_a.get_user( username )
+    topscore = await osu_a.get_user_best( username )
+
+    if user != None :
+        beatmap = await osu_a.get_beatmap( beatmap_id = topscore.beatmap_id )
+        songname = beatmap.title
+        difficultyname = beatmap.version
+        stars = beatmap.difficultyrating
+
+        await ctx.send("IGN: " + username + "\nRank: #" + str(user.pp_rank) + "\nTop Play: " + songname + 
+            " [" + difficultyname + "]  " + str(round(stars,2)) + "*")
+    else:
+        ctx.send("User not found")
 
 #Text Commands
 @client.event
@@ -54,27 +140,12 @@ async def on_message( message ):
     channelcheck = False
     if str(message.channel) in allowed :
         channelcheck = True
-
-    if channelcheck and message.content.find("!osu") != -1 :
-        username = realmsg[5:(len(realmsg))]
-        user = await osu.get_user( username )
-        topscore = await osu.get_user_best( username )
-
-        if user != None :
-            beatmap = await osu.get_beatmap( beatmap_id = topscore.beatmap_id )
-            songname = beatmap.title
-            difficultyname = beatmap.version
-            stars = beatmap.difficultyrating
-
-            await message.channel.send("Username: " + username + "\nRank: " + str(user.pp_rank) + "\nTop Play: " + songname + 
-                " [" + difficultyname + "]  " + str(round(stars,2)) + "*")
-        
-    elif channelcheck and message.content.find("!mal") != -1 :
-        inputname = realmsg[5:(len(realmsg))]
-        user = mal.user( username = inputname, request = 'animelist')
+     
+    if channelcheck and message.content.find("!mal") != -1 :
+        #inputname = realmsg[5:(len(realmsg))]
+        #user = mal.user( username = inputname, request = 'animelist')
             
         await message.channel.send("Username: " )
-
     elif channelcheck and message.content.find("!qqq") != -1 :
         personalities = [  ["BOLD", 0], ["QUIRKY", 0], ["TIMID", 0], ["NAIVE", 0], ["HASTY", 0] ]
         questions = [0,1,2,3,4,5,6,7,8,9,10,11,12]
