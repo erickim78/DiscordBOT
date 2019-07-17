@@ -41,7 +41,11 @@ allowed = ["gamingstats", "statsbot"]
 #Commands using prefix
 @client.command( pass_context = True )
 async def ping(ctx):
-    await ctx.channel.send(f' {round(client.latency*1000)} MS')
+    await ctx.send(f' {round(client.latency*1000)} MS')
+
+@client.command( pass_context = True, aliases=['h'] )
+async def help(ctx):
+    await ctx.send
 
 @client.command( pass_context = True, aliases= ['summon'])
 async def join(ctx):
@@ -54,11 +58,15 @@ async def join(ctx):
     else:
         voice = await currentchannel.connect()
         print(f'The bot has connected to {currentchannel}')
+
+        voice.play( discord.FFmpegPCMAudio("join.mp3") )
+        voice.source = discord.PCMVolumeTransformer( voice.source )
+        voice.source.volume = 0.40
+
     #await voice.disconnect()
 
 @client.command( pass_context = True, aliases = ['exit'])
 async def leave(ctx):
-    currentchannel = ctx.message.author.voice.channel
     voice = get( client.voice_clients, guild=ctx.guild )
 
     if voice and voice.is_connected():
@@ -92,12 +100,19 @@ async def play(ctx, url: str):
 
     for file in os.listdir("./"):
         if file.endswith(".mp3"):
-            name = file
             os.rename(file, "song.mp3")
 
     voice.play( discord.FFmpegPCMAudio("song.mp3") )
     voice.source = discord.PCMVolumeTransformer( voice.source )
     voice.source.volume = 0.30
+
+@client.command( pass_contexxt = True )
+async def stop(ctx):
+    voice = get(client.voice_clients, guild= ctx.guild)
+
+    if voice and voice.is_playing():
+        voice.stop()
+
 
 @client.command( pass_context = True ) 
 async def osu(ctx, username: str):
@@ -124,7 +139,7 @@ async def on_message( message ):
      
     if channelcheck and message.content.find("!mal") != -1 :
         inputname = realmsg[5:(len(realmsg))]
-        user = mal.user( username = inputname, request = 'animelist')
+        #user = mal.user( username = inputname, request = 'animelist')
             
         await message.channel.send("Username: " )
     elif channelcheck and message.content.find("!qqq") != -1 :

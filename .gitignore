@@ -125,3 +125,7 @@ dmypy.json
 
 #Config Files
 config.json
+
+#MISC Files
+song.mp3
+join.mp3
