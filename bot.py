@@ -43,9 +43,9 @@ allowed = ["gamingstats", "statsbot"]
 async def ping(ctx):
     await ctx.send(f' {round(client.latency*1000)} MS')
 
-@client.command( pass_context = True, aliases=['h'] )
-async def help(ctx):
-    await ctx.send
+#@client.command( pass_context = True, aliases=['h'] )
+#async def help(ctx):
+#    await ctx.send("!join: Summon bot to current channel.\n!play 'url': Plays the audio from the given youtube url.\n!stop: Stops currently playing audio.\nleave: Disconnects bot from the current channel.\n")
 
 @client.command( pass_context = True, aliases= ['summon'])
 async def join(ctx):
@@ -61,7 +61,7 @@ async def join(ctx):
 
         voice.play( discord.FFmpegPCMAudio("join.mp3") )
         voice.source = discord.PCMVolumeTransformer( voice.source )
-        voice.source.volume = 0.40
+        voice.source.volume = 0.80
 
     #await voice.disconnect()
 
@@ -104,7 +104,7 @@ async def play(ctx, url: str):
 
     voice.play( discord.FFmpegPCMAudio("song.mp3") )
     voice.source = discord.PCMVolumeTransformer( voice.source )
-    voice.source.volume = 0.30
+    voice.source.volume = 0.45
 
 @client.command( pass_contexxt = True )
 async def stop(ctx):
@@ -138,7 +138,7 @@ async def on_message( message ):
         channelcheck = True
      
     if channelcheck and message.content.find("!mal") != -1 :
-        inputname = realmsg[5:(len(realmsg))]
+        #inputname = realmsg[5:(len(realmsg))]
         #user = mal.user( username = inputname, request = 'animelist')
             
         await message.channel.send("Username: " )
