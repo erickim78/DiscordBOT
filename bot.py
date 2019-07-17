@@ -61,11 +61,11 @@ async def join(ctx):
 
         voice.play( discord.FFmpegPCMAudio("join.wav") )
         voice.source = discord.PCMVolumeTransformer( voice.source )
-        voice.source.volume = 0.80
+        voice.source.volume = 0.70
 
     #await voice.disconnect()
 
-@client.command( pass_context = True, aliases = ['exit'])
+@client.command( pass_context = True, aliases = ['exit', 'kick'])
 async def leave(ctx):
     voice = get( client.voice_clients, guild=ctx.guild )
 
@@ -106,7 +106,7 @@ async def play(ctx, url: str):
     await ctx.send("Now Playing")
     voice.play( discord.FFmpegPCMAudio("song.mp3") )
     voice.source = discord.PCMVolumeTransformer( voice.source )
-    voice.source.volume = 0.45
+    voice.source.volume = 0.30
 
 @client.command( pass_contexxt = True )
 async def stop(ctx):
