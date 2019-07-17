@@ -59,7 +59,7 @@ async def join(ctx):
         voice = await currentchannel.connect()
         print(f'The bot has connected to {currentchannel}')
 
-        voice.play( discord.FFmpegPCMAudio("join.mp3") )
+        voice.play( discord.FFmpegPCMAudio("join.wav") )
         voice.source = discord.PCMVolumeTransformer( voice.source )
         voice.source.volume = 0.80
 
@@ -75,8 +75,9 @@ async def leave(ctx):
 
 @client.command( pass_context = True, aliases = ['p'])
 async def play(ctx, url: str):
-    localsong = os.path.isfile("song.mp3")
+    await ctx.send("Searching...")
 
+    localsong = os.path.isfile("song.mp3")
     try:
         if localsong:
             os.remove("song.mp3")
@@ -102,6 +103,7 @@ async def play(ctx, url: str):
         if file.endswith(".mp3"):
             os.rename(file, "song.mp3")
 
+    await ctx.send("Now Playing")
     voice.play( discord.FFmpegPCMAudio("song.mp3") )
     voice.source = discord.PCMVolumeTransformer( voice.source )
     voice.source.volume = 0.45
@@ -109,7 +111,7 @@ async def play(ctx, url: str):
 @client.command( pass_contexxt = True )
 async def stop(ctx):
     voice = get(client.voice_clients, guild= ctx.guild)
-
+    await ctx.send("Stopping...")
     if voice and voice.is_playing():
         voice.stop()
 
@@ -127,6 +129,8 @@ async def osu(ctx, username: str):
 
         await ctx.send("IGN: " + username + "\nRank: #" + str(user.pp_rank) + "\nTop Play: " + songname + 
             " [" + difficultyname + "]  " + str(round(stars,2)) + "*")
+    else:
+        ctx.send("User not found")
 
 #Text Commands
 @client.event
