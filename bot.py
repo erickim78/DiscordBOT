@@ -111,7 +111,7 @@ async def play(ctx, url: str):
 @client.command( pass_contexxt = True )
 async def stop(ctx):
     voice = get(client.voice_clients, guild= ctx.guild)
-    await ctx.send("Stopping...")
+    await ctx.send("Stopping")
     if voice and voice.is_playing():
         voice.stop()
 
