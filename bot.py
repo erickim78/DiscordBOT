@@ -10,14 +10,13 @@ from pyosu import OsuApi
 #Importing MAL Py Wrapper
 from jikanpy import Jikan
 
+#Misc Imports
 import json
 import pprint
 import random
 import youtube_dl
 import os
 import shutil
-
-#import PyNaCl
 
 #Config File Usage
 with open( 'config.json') as config_file:
@@ -49,7 +48,9 @@ async def ping(ctx):
 #async def help(ctx):
 #    await ctx.send("!join: Summon bot to current channel.\n!play 'url': Plays the audio from the given youtube url.\n!stop: Stops currently playing audio.\nleave: Disconnects bot from the current channel.\n")
 
-@client.command( pass_context = True, aliases= ['summon'])
+
+
+@client.command( pass_context = True, aliases= ['summon', 'connect'])
 async def join(ctx):
     global voice
     currentchannel = ctx.message.author.voice.channel
@@ -63,18 +64,6 @@ async def join(ctx):
 
     #await voice.disconnect()
 
-@client.command( pass_context = True )
-async def timeleap(ctx):
-    voice = get( client.voice_clients, guild= ctx.guild)
-    if voice and voice.is_playing():
-        return
-    else:
-        voice = get(client.voice_clients, guild= ctx.guild)
-        voice.play( discord.FFmpegPCMAudio("./Audio/join.wav") )
-        voice.source = discord.PCMVolumeTransformer( voice.source )
-        voice.source.volume = 0.60
-
-
 @client.command( pass_context = True, aliases = ['exit', 'kick'])
 async def leave(ctx):
     voice = get( client.voice_clients, guild=ctx.guild )
@@ -82,7 +71,6 @@ async def leave(ctx):
     if voice and voice.is_connected():
         await voice.disconnect()
         print("The bot has disconnected from voice chat")
-
 
 @client.command( pass_context = True, aliases = ['p'])
 async def play(ctx, url: str):
@@ -117,7 +105,7 @@ async def play(ctx, url: str):
                 
                 voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                 voice.source = discord.PCMVolumeTransformer( voice.source )
-                voice.source.volume = 0.05
+                voice.source.volume = 0.04
             else:
                 songlist.clear()
                 return
@@ -164,13 +152,69 @@ async def play(ctx, url: str):
     await ctx.send("Now Playing")
     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
     voice.source = discord.PCMVolumeTransformer( voice.source )
-    voice.source.volume = 0.05
+    voice.source.volume = 0.04
+
+
+@client.command( pass_context = True)
+async def pause(ctx):
+    voice = get(client.voice_clients, guild= ctx.guild)
+    if voice and voice.is_playing():
+        voice.pause()
+
+@client.command( pass_context = True)
+async def resume(ctx):
+    voice = get(client.voice_clients, guild= ctx.guild)
+    if voice and voice.is_paused():
+        voice.resume()
 
 @client.command( pass_context = True )
 async def skip(ctx):
+
+    def check_songlist():
+        Qexists = os.path.isdir("./Queue")
+        if Qexists:
+            location = os.path.abspath( os.path.realpath("Queue") )
+            num_songs = len(os.listdir(location))
+            try:
+                file1 = os.listdir(location)[0]
+            except:
+                songlist.clear()
+                return
+            new_location = os.path.dirname( os.path.realpath(__file__))
+            song_path = os.path.abspath( os.path.realpath("Queue") + "\\" + file1 )
+            if num_songs != 0:
+                exists = os.path.isfile("song.mp3")
+                if exists:
+                    os.remove("song.mp3")
+                shutil.move(song_path, new_location)
+                for file in os.listdir("./"):
+                    if file.endswith(".mp3"):
+                        os.rename(file, 'song.mp3')
+                
+                voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
+                voice.source = discord.PCMVolumeTransformer( voice.source )
+                voice.source.volume = 0.04
+            else:
+                songlist.clear()
+                print("Songlist Clear 1")
+                return
+        else:
+            songlist.clear()
+            print("Songlist Clear 2")
+    def afterskip():
+        voice.play( discord.FFmpegPCMAudio("song.mp3"), after= lambda e:check_songlist() )
+        voice.source = discord.PCMVolumeTransformer( voice.source )
+        voice.source.volume = 0.04
+
     voice = get( client.voice_clients, guild= ctx.guild)
     if voice and voice.is_playing():
         voice.stop()
+
+        voice.play( discord.FFmpegPCMAudio("./Audio/join.wav"), after= lambda e:afterskip() )
+        voice.source = discord.PCMVolumeTransformer( voice.source )
+        voice.source.volume = 0.55
+
+        #voice.stop()
           
 
 @client.command( pass_contexxt = True )
@@ -188,7 +232,7 @@ songlist = {}
 @client.command( pass_context = True, aliases = ['q'] )
 async def queue(ctx, url: str):
     voice = get(client.voice_clients, guild= ctx.guild)
-    if voice and voice.is_playing():
+    if voice.is_playing() is False:
         await ctx.send("Only King Crimson can skip the !play command. Please use !play")
         return
 
@@ -543,38 +587,3 @@ async def on_message( message ):
 
 token = config['token']
 client.run(token)
-
-
-
-
-"""
-def check_songlist():
-    Qexists = os.path.isdir("./Audio/Queue")
-    if Qexists:
-        location = os.path.abspath( os.path.realpath("./Audio/Queue") )
-        num_songs = len(os.listdir(location))
-        try:
-            file1 = os.listdir(location)[0]
-        except:
-            songlist.clear()
-            return
-        #new_location = os.path.dirname( os.path.realpath(__file__))
-        song_path = os.path.abspath( os.path.realpath("./Audio/Queue") + "\\" + file1 )
-        if num_songs != 0:
-            exists = os.path.isfile("./Audio/song.mp3")
-            if exists:
-                os.remove("./Audio/song.mp3")
-            shutil.move(song_path, "./Audio")
-            for file in os.listdir("./Audio"):
-                if file.endswith(".mp3"):
-                    os.rename(file, 'song.mp3')
-                
-            voice.play( discord.FFmpegPCMAudio("./Audio/song.mp3"), after=lambda e: check_songlist() )
-            voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = 0.20
-        else:
-            songlist.clear()
-            return
-    else:
-        songlist.clear()
-"""
