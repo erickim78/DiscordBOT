@@ -105,7 +105,7 @@ async def play(ctx, url: str):
                 
                 voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                 voice.source = discord.PCMVolumeTransformer( voice.source )
-                voice.source.volume = 0.04
+                voice.source.volume = 0.05
             else:
                 songlist.clear()
                 return
@@ -152,7 +152,7 @@ async def play(ctx, url: str):
     await ctx.send("Now Playing")
     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
     voice.source = discord.PCMVolumeTransformer( voice.source )
-    voice.source.volume = 0.04
+    voice.source.volume = 0.05
 
 
 @client.command( pass_context = True)
@@ -193,7 +193,7 @@ async def skip(ctx):
                 
                 voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                 voice.source = discord.PCMVolumeTransformer( voice.source )
-                voice.source.volume = 0.04
+                voice.source.volume = 0.05
             else:
                 songlist.clear()
                 print("Songlist Clear 1")
@@ -204,7 +204,7 @@ async def skip(ctx):
     def afterskip():
         voice.play( discord.FFmpegPCMAudio("song.mp3"), after= lambda e:check_songlist() )
         voice.source = discord.PCMVolumeTransformer( voice.source )
-        voice.source.volume = 0.04
+        voice.source.volume = 0.05
 
     voice = get( client.voice_clients, guild= ctx.guild)
     if voice and voice.is_playing():
