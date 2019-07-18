@@ -212,7 +212,7 @@ async def skip(ctx):
 
         voice.play( discord.FFmpegPCMAudio("./Audio/join.wav"), after= lambda e:afterskip() )
         voice.source = discord.PCMVolumeTransformer( voice.source )
-        voice.source.volume = 0.55
+        voice.source.volume = 0.65
 
         #voice.stop()
           
