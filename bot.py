@@ -86,6 +86,13 @@ async def leave(ctx):
 
 @client.command( pass_context = True, aliases = ['p'])
 async def play(ctx, url: str):
+
+    currentchannel = ctx.message.author.voice.channel
+    voice = get( client.voice_clients, guild= ctx.guild)
+    if voice and voice.is_connected():
+        await voice.move_to( currentchannel )
+    else:
+        voice = await currentchannel.connect()
     
     def check_songlist():
         Qexists = os.path.isdir("./Queue")
@@ -110,7 +117,7 @@ async def play(ctx, url: str):
                 
                 voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                 voice.source = discord.PCMVolumeTransformer( voice.source )
-                voice.source.volume = 0.01
+                voice.source.volume = 0.05
             else:
                 songlist.clear()
                 return
@@ -157,14 +164,13 @@ async def play(ctx, url: str):
     await ctx.send("Now Playing")
     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
     voice.source = discord.PCMVolumeTransformer( voice.source )
-    voice.source.volume = 0.20
+    voice.source.volume = 0.05
 
 @client.command( pass_context = True )
 async def skip(ctx):
     voice = get( client.voice_clients, guild= ctx.guild)
     if voice and voice.is_playing():
         voice.stop()
-        #check_songlist()
           
 
 @client.command( pass_contexxt = True )
@@ -182,7 +188,7 @@ songlist = {}
 @client.command( pass_context = True, aliases = ['q'] )
 async def queue(ctx, url: str):
 
-    await ctx.send("Adding to queue")
+    await ctx.send("Searching...")
 
     Qexists = os.path.isdir("./Queue")
     if Qexists is False:
