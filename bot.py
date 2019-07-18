@@ -132,7 +132,7 @@ async def play(ctx, url: str):
         await ctx.send("Searching...")
     except PermissionError:
         print("Tried to delete currently playing song")
-        await ctx.send("Only 𝖪̶𝗂̶𝗇̶𝗀̶ Emperor Crimson has the power to erase music. Please use !queue")
+        await ctx.send("Only King Crimson has the power to erase the current song. Please use !queue")
         return
 
     Qexists = os.path.isdir("./Queue")
@@ -187,9 +187,12 @@ async def stop(ctx):
 songlist = {}
 @client.command( pass_context = True, aliases = ['q'] )
 async def queue(ctx, url: str):
+    voice = get(client.voice_clients, guild= ctx.guild)
+    if voice and voice.is_playing():
+        await ctx.send("Only King Crimson can skip the !play command. Please use !play")
+        return
 
     await ctx.send("Searching...")
-
     Qexists = os.path.isdir("./Queue")
     if Qexists is False:
         os.mkdir("Queue")
@@ -219,7 +222,8 @@ async def queue(ctx, url: str):
     }
     
     with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
-        ydl.download( [url] )
+        ydl.download( [url] )    
+    await ctx.send("Added to Queue")
 
 
 @client.command( pass_context = True )  
