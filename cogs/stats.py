@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 
 #Misc imports
+import asyncio
 import json
 from pyosu import OsuApi
 from bot import config
