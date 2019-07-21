@@ -5,6 +5,7 @@ from discord.utils import get
 
 #Misc imports
 import asyncio
+import random
 
 def setup( client ):
     client.add_cog( quiz(client) )
@@ -16,6 +17,9 @@ class quiz( commands.Cog ):
 
     @commands.command
     async def qqq( self, ctx ):
+
+        client = self.client
+        message = ctx.message
 
         personalities = [  ["BOLD", 0], ["QUIRKY", 0], ["TIMID", 0], ["NAIVE", 0], ["HASTY", 0] ]
         questions = [0,1,2,3,4,5,6,7,8,9,10,11,12]
