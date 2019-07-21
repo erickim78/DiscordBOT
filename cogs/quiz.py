@@ -7,15 +7,18 @@ from discord.utils import get
 import asyncio
 import random
 
+
 def setup( client ):
     client.add_cog( quiz(client) )
 
 class quiz( commands.Cog ):
 
+
     def __init__(self, client):
         self.client = client
 
-    @commands.command
+
+    @commands.command( pass_context = True )
     async def qqq( self, ctx ):
 
         client = self.client

@@ -1,12 +1,16 @@
-#Importing Discord 
+#Discord Imports
 import discord
 from discord.ext import commands
+from discord.utils import get
 
 #Misc imports
 import asyncio
-import json
 from pyosu import OsuApi
+
+import json
+
 from bot import config
+
 
 def setup( client ):
     client.add_cog( stats(client) )
@@ -36,4 +40,5 @@ class stats( commands.Cog ):
                 " [" + difficultyname + "]  " + str(round(stars,2)) + "*")
         else:
             ctx.send("User not found")
+            
     

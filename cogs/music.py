@@ -34,7 +34,6 @@ class music( commands.Cog ):
             voice = await currentchannel.connect()
             print(f'The bot has connected to {currentchannel}')
 
-
     @commands.command( pass_context = True, aliases = ['exit', 'kick'])
     async def leave(self, ctx):
         client = self.client
