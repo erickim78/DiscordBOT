@@ -9,18 +9,21 @@ import youtube_dl
 import os
 import shutil
 
+#Global Var
 songlist = {}
+music_volume = 0.05
+effect_volume = 0.65
+
 
 def setup( client ):
     client.add_cog( music(client) )
 
 class music( commands.Cog ):
 
-
     def __init__(self, client):
         self.client = client
 
-
+    #Voice Channel Movement
     @commands.command(aliases= ['summon', 'connect'])
     async def join(self, ctx):
         client = self.client
@@ -43,6 +46,7 @@ class music( commands.Cog ):
             await voice.disconnect()
             print("The bot has disconnected from voice chat")
 
+    #Music Playing/Queue
     @commands.command( pass_context = True, aliases = ['p'])
     async def play(self, ctx, url: str):
         client = self.client
@@ -76,7 +80,7 @@ class music( commands.Cog ):
                     
                     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                     voice.source = discord.PCMVolumeTransformer( voice.source )
-                    voice.source.volume = 0.05
+                    voice.source.volume = music_volume
                 else:
                     songlist.clear()
                     return
@@ -123,8 +127,50 @@ class music( commands.Cog ):
         await ctx.send("Now Playing")
         voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
         voice.source = discord.PCMVolumeTransformer( voice.source )
-        voice.source.volume = 0.05
+        voice.source.volume = music_volume
 
+    @commands.command( pass_context = True, aliases = ['q'] )
+    async def queue(self, ctx, url: str):
+        client = self.client
+        voice = get(client.voice_clients, guild= ctx.guild)
+        if voice.is_playing() is False:
+            await ctx.send("Only King Crimson can skip the !play command. Please use !play")
+            return
+
+        await ctx.send("Searching...")
+        Qexists = os.path.isdir("./Queue")
+        if Qexists is False:
+            os.mkdir("Queue")
+
+        location = os.path.abspath( os.path.realpath("Queue"))
+        num_songs = len( os.listdir(location) )
+        num_songs += 1
+
+        add_queue = True
+        while add_queue:
+            if num_songs in songlist:
+                num_songs += 1
+            else:
+                add_queue = False
+                songlist[num_songs] = num_songs
+
+        queue_path = os.path.abspath( os.path.realpath("Queue") + f"\song{num_songs}.%(ext)s")
+
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'outtmpl': queue_path,
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
+        
+        with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
+            ydl.download( [url] )    
+        await ctx.send("Added to Queue")
+
+    #Miscellaneous
     @commands.command( pass_context = True)
     async def pause(self, ctx):
         client = self.client
@@ -174,10 +220,11 @@ class music( commands.Cog ):
             else:
                 songlist.clear()
                 print("Songlist Clear 2")
+
         def afterskip():
             voice.play( discord.FFmpegPCMAudio("song.mp3"), after= lambda e:check_songlist() )
             voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = 0.05
+            voice.source.volume = music_volume
 
         voice = get( client.voice_clients, guild= ctx.guild)
         if voice and voice.is_playing():
@@ -185,7 +232,7 @@ class music( commands.Cog ):
 
             voice.play( discord.FFmpegPCMAudio("./Audio/join.wav"), after= lambda e:afterskip() )
             voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = 0.65
+            voice.source.volume = effect_volume
 
             #voice.stop()      
 
@@ -200,44 +247,4 @@ class music( commands.Cog ):
         if voice and voice.is_playing():
             voice.stop()
 
-    @commands.command( pass_context = True, aliases = ['q'] )
-    async def queue(self, ctx, url: str):
-        client = self.client
-        voice = get(client.voice_clients, guild= ctx.guild)
-        if voice.is_playing() is False:
-            await ctx.send("Only King Crimson can skip the !play command. Please use !play")
-            return
-
-        await ctx.send("Searching...")
-        Qexists = os.path.isdir("./Queue")
-        if Qexists is False:
-            os.mkdir("Queue")
-
-        location = os.path.abspath( os.path.realpath("Queue"))
-        num_songs = len( os.listdir(location) )
-        num_songs += 1
-
-        add_queue = True
-        while add_queue:
-            if num_songs in songlist:
-                num_songs += 1
-            else:
-                add_queue = False
-                songlist[num_songs] = num_songs
-
-        queue_path = os.path.abspath( os.path.realpath("Queue") + f"\song{num_songs}.%(ext)s")
-
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': queue_path,
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-        }
-        
-        with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
-            ydl.download( [url] )    
-        await ctx.send("Added to Queue")
 
