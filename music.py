@@ -12,7 +12,7 @@ import shutil
 #Global Var
 songlist = {}
 music_volume = 0.05
-effect_volume = 0.65
+effect_volume = 0.50
 
 
 def setup( client ):
@@ -46,19 +46,25 @@ class music( commands.Cog ):
             await voice.disconnect()
             print("The bot has disconnected from voice chat")
 
-    #Music Playing/Queue
+    #Music
     @commands.command( pass_context = True, aliases = ['p'])
     async def play(self, ctx, url: str):
         client = self.client
         currentchannel = ctx.message.author.voice.channel
         voice = get( client.voice_clients, guild= ctx.guild)
+
         if voice and voice.is_connected():
-            await voice.move_to( currentchannel )
+            if voice.is_playing() is False:
+                await voice.move_to( currentchannel )
         else:
             voice = await currentchannel.connect()
         
         def check_songlist():
             Qexists = os.path.isdir("./Queue")
+
+            if os.path.isfile("song.mp3"):
+                os.remove("song.mp3")
+
             if Qexists:
                 location = os.path.abspath( os.path.realpath("Queue") )
                 num_songs = len(os.listdir(location))
@@ -70,9 +76,6 @@ class music( commands.Cog ):
                 new_location = os.path.dirname( os.path.realpath(__file__))
                 song_path = os.path.abspath( os.path.realpath("Queue") + "\\" + file1 )
                 if num_songs != 0:
-                    exists = os.path.isfile("song.mp3")
-                    if exists:
-                        os.remove("song.mp3")
                     shutil.move(song_path, new_location)
                     for file in os.listdir("./"):
                         if file.endswith(".mp3"):
@@ -87,90 +90,78 @@ class music( commands.Cog ):
             else:
                 songlist.clear()
         
-        localsong = os.path.isfile("song.mp3")
-        try:
-            if localsong:
-                os.remove("song.mp3")
-                songlist.clear()
+        if voice.is_playing():
+            client = self.client
+            voice = get(client.voice_clients, guild= ctx.guild)
+            if voice.is_playing() is False:
+                await ctx.send("Only King Crimson can skip the !play command. Please use !play")
+                return
+
             await ctx.send("Searching...")
-        except PermissionError:
-            print("Tried to delete currently playing song")
-            await ctx.send("Only King Crimson has the power to erase the current song. Please use !queue")
-            return
+            Qexists = os.path.isdir("./Queue")
+            if Qexists is False:
+                os.mkdir("Queue")
 
-        Qexists = os.path.isdir("./Queue")
-        try:
-            folder = "./Queue"
-            if Qexists:
-                shutil.rmtree( folder )
-        except:
-            print("No Queue")
+            location = os.path.abspath( os.path.realpath("Queue"))
+            num_songs = len( os.listdir(location) )
+            num_songs += 1
 
-        voice = get(client.voice_clients, guild= ctx.guild)
+            add_queue = True
+            while add_queue:
+                if num_songs in songlist:
+                    num_songs += 1
+                else:
+                    add_queue = False
+                    songlist[num_songs] = num_songs
 
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-        }
+            queue_path = os.path.abspath( os.path.realpath("Queue") + f"\song{num_songs}.%(ext)s")
 
-        with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
-            ydl.download( [url] )
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'outtmpl': queue_path,
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }],
+            }
+            
+            with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
+                ydl.download( [url] )    
+            await ctx.send("Added to Queue")
 
-        for file in os.listdir("./"):
-            if file.endswith(".mp3"):
-                os.rename(file, "song.mp3")
+        else:
+            Qexists = os.path.isdir("./Queue")
+            try:
+                folder = "./Queue"
+                if Qexists:
+                    shutil.rmtree( folder )
+            except:
+                print("No Queue")
 
-        await ctx.send("Now Playing")
-        voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
-        voice.source = discord.PCMVolumeTransformer( voice.source )
-        voice.source.volume = music_volume
+            voice = get(client.voice_clients, guild= ctx.guild)
 
-    @commands.command( pass_context = True, aliases = ['q'] )
-    async def queue(self, ctx, url: str):
-        client = self.client
-        voice = get(client.voice_clients, guild= ctx.guild)
-        if voice.is_playing() is False:
-            await ctx.send("Only King Crimson can skip the !play command. Please use !play")
-            return
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }],
+            }
 
-        await ctx.send("Searching...")
-        Qexists = os.path.isdir("./Queue")
-        if Qexists is False:
-            os.mkdir("Queue")
+            with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
+                ydl.download( [url] )
 
-        location = os.path.abspath( os.path.realpath("Queue"))
-        num_songs = len( os.listdir(location) )
-        num_songs += 1
+            for file in os.listdir("./"):
+                if file.endswith(".mp3"):
+                    os.rename(file, "song.mp3")
 
-        add_queue = True
-        while add_queue:
-            if num_songs in songlist:
-                num_songs += 1
-            else:
-                add_queue = False
-                songlist[num_songs] = num_songs
+            await ctx.send("Now Playing")
+            voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
+            voice.source = discord.PCMVolumeTransformer( voice.source )
+            voice.source.volume = music_volume
 
-        queue_path = os.path.abspath( os.path.realpath("Queue") + f"\song{num_songs}.%(ext)s")
-
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': queue_path,
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-        }
-        
-        with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
-            ydl.download( [url] )    
-        await ctx.send("Added to Queue")
-
-    #Miscellaneous
     @commands.command( pass_context = True)
     async def pause(self, ctx):
         client = self.client
@@ -191,6 +182,10 @@ class music( commands.Cog ):
 
         def check_songlist():
             Qexists = os.path.isdir("./Queue")
+
+            if os.path.isfile("song.mp3"):
+                os.remove("song.mp3")
+
             if Qexists:
                 location = os.path.abspath( os.path.realpath("Queue") )
                 num_songs = len(os.listdir(location))
@@ -202,9 +197,6 @@ class music( commands.Cog ):
                 new_location = os.path.dirname( os.path.realpath(__file__))
                 song_path = os.path.abspath( os.path.realpath("Queue") + "\\" + file1 )
                 if num_songs != 0:
-                    exists = os.path.isfile("song.mp3")
-                    if exists:
-                        os.remove("song.mp3")
                     shutil.move(song_path, new_location)
                     for file in os.listdir("./"):
                         if file.endswith(".mp3"):
@@ -222,9 +214,10 @@ class music( commands.Cog ):
                 print("Songlist Clear 2")
 
         def afterskip():
-            voice.play( discord.FFmpegPCMAudio("song.mp3"), after= lambda e:check_songlist() )
-            voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = music_volume
+            if os.path.isfile("song.mp3"):
+                voice.play( discord.FFmpegPCMAudio("song.mp3"), after= lambda e:check_songlist() )
+                voice.source = discord.PCMVolumeTransformer( voice.source )
+                voice.source.volume = music_volume
 
         voice = get( client.voice_clients, guild= ctx.guild)
         if voice and voice.is_playing():
@@ -246,5 +239,7 @@ class music( commands.Cog ):
         await ctx.send("Stopping")
         if voice and voice.is_playing():
             voice.stop()
+            if os.path.isfile("song.mp3"):
+                os.remove("song.mp3")
 
 
