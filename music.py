@@ -51,6 +51,9 @@ class music( commands.Cog ):
     async def play(self, ctx):
         message = ctx.message.content
         url = message[6: len(message)]
+        if len(url) == 11:
+            url = " " + url
+        print(url)
         client = self.client
         currentchannel = ctx.message.author.voice.channel
         voice = get( client.voice_clients, guild= ctx.guild)
@@ -116,6 +119,7 @@ class music( commands.Cog ):
 
             ydl_opts = {
                 'format': 'bestaudio/best',
+                'ignoreerrors': 'True',
                 'default_search': 'auto',
                 'outtmpl': queue_path,
                 'postprocessors': [{
@@ -126,14 +130,14 @@ class music( commands.Cog ):
             }
             
             with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
-                ydl.download( [url] )    
-                info = ydl.extract_info( url, download= False )
-
-            video_title = info.get('title')
-            if video_title == "None":
-                video_title = url
-
-            await ctx.send(f'Successfully added \"{video_title}\" to queue')
+                try:
+                    info = ydl.extract_info( url, download= True )
+                    video_title = info.get('title')
+                    if video_title == None:
+                        video_title = url
+                    await ctx.send(f'Successfully added \"{video_title}\" to queue')
+                except:
+                    await ctx.send(f'Unable to queue, song is unavailable')
 
         else:
             await ctx.send("Searching...")
@@ -153,6 +157,7 @@ class music( commands.Cog ):
 
             ydl_opts = {
                 'format': 'bestaudio/best',
+                'ignoreerrors': 'True',
                 'default_search': 'auto',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
@@ -162,20 +167,19 @@ class music( commands.Cog ):
             }
 
             with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
-                ydl.download( [url] )
-                info = ydl.extract_info( url, download= False )
+                try:
+                    info = ydl.extract_info( url, download= True )
+                    video_title = info.get('title')
+                    if video_title == None:
+                        video_title = url
+                    await ctx.send(f'Now playing \"{video_title}\"')
+                except:
+                    await ctx.send(f'Unable to play, song is unavailable')
 
-            video_title = info.get('title')
-            print(video_title)
-            if video_title == None:
-                video_title = url
-
-            print(video_title)
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file, "song.mp3")
-
-            await ctx.send(f'Now playing \"{video_title}\"')
+            
             voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
             voice.source = discord.PCMVolumeTransformer( voice.source )
             voice.source.volume = music_volume
