@@ -93,11 +93,8 @@ class music( commands.Cog ):
         if voice.is_playing():
             client = self.client
             voice = get(client.voice_clients, guild= ctx.guild)
-            if voice.is_playing() is False:
-                await ctx.send("Only King Crimson can skip the !play command. Please use !play")
-                return
 
-            await ctx.send("Searching...")
+            await ctx.send("Attempting to queue...")
             Qexists = os.path.isdir("./Queue")
             if Qexists is False:
                 os.mkdir("Queue")
@@ -128,9 +125,14 @@ class music( commands.Cog ):
             
             with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
                 ydl.download( [url] )    
-            await ctx.send("Added to Queue")
+            await ctx.send("Successfully added to queue")
 
         else:
+            await ctx.send("Searching...")
+            
+            if os.path.isfile("song.mp3"):
+                os.remove("song.mp3")
+
             Qexists = os.path.isdir("./Queue")
             try:
                 folder = "./Queue"
