@@ -11,7 +11,7 @@ import shutil
 
 #Global Var
 songlist = {}
-music_volume = 0.05
+music_volume = 0.04
 effect_volume = 0.50
 
 
