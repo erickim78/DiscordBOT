@@ -48,7 +48,9 @@ class music( commands.Cog ):
 
     #Music
     @commands.command( pass_context = True, aliases = ['p'])
-    async def play(self, ctx, url: str):
+    async def play(self, ctx):
+        message = ctx.message.content
+        url = message[6: len(message)]
         client = self.client
         currentchannel = ctx.message.author.voice.channel
         voice = get( client.voice_clients, guild= ctx.guild)
@@ -80,7 +82,6 @@ class music( commands.Cog ):
                     for file in os.listdir("./"):
                         if file.endswith(".mp3"):
                             os.rename(file, 'song.mp3')
-                    
                     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                     voice.source = discord.PCMVolumeTransformer( voice.source )
                     voice.source.volume = music_volume
@@ -127,7 +128,10 @@ class music( commands.Cog ):
             with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
                 ydl.download( [url] )    
                 info = ydl.extract_info( url, download= False )
+
             video_title = info.get('title')
+            if video_title == "None":
+                video_title = url
 
             await ctx.send(f'Successfully added \"{video_title}\" to queue')
 
@@ -160,8 +164,13 @@ class music( commands.Cog ):
             with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
                 ydl.download( [url] )
                 info = ydl.extract_info( url, download= False )
-            video_title = info.get('title')
 
+            video_title = info.get('title')
+            print(video_title)
+            if video_title == None:
+                video_title = url
+
+            print(video_title)
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file, "song.mp3")
@@ -210,7 +219,6 @@ class music( commands.Cog ):
                     for file in os.listdir("./"):
                         if file.endswith(".mp3"):
                             os.rename(file, 'song.mp3')
-                    
                     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                     voice.source = discord.PCMVolumeTransformer( voice.source )
                     voice.source.volume = 0.05
@@ -224,7 +232,7 @@ class music( commands.Cog ):
 
         def afterskip():
             if os.path.isfile("song.mp3"):
-                voice.play( discord.FFmpegPCMAudio("song.mp3"), after= lambda e:check_songlist() )
+                voice.play( discord.FFmpegPCMAudio("song.mp3"), after= lambda e: check_songlist() )
                 voice.source = discord.PCMVolumeTransformer( voice.source )
                 voice.source.volume = music_volume
 
@@ -232,11 +240,9 @@ class music( commands.Cog ):
         if voice and voice.is_playing():
             voice.stop()
 
-            voice.play( discord.FFmpegPCMAudio("./Audio/join.wav"), after= lambda e:afterskip() )
+            voice.play( discord.FFmpegPCMAudio("./Audio/join.wav"), after= lambda e: afterskip() )
             voice.source = discord.PCMVolumeTransformer( voice.source )
             voice.source.volume = effect_volume
-
-            #voice.stop()      
 
     @commands.command( pass_contexxt = True )
     async def stop(self, ctx):
