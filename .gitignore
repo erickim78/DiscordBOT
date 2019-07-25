@@ -127,10 +127,7 @@ dmypy.json
 config.json
 
 #MISC Files
-Audio/
-Audio/*
 Queue/
 Queue/*
 *.mp3
-*.wav
 *.bat

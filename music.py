@@ -115,6 +115,7 @@ class music( commands.Cog ):
 
             ydl_opts = {
                 'format': 'bestaudio/best',
+                'default_search': 'auto',
                 'outtmpl': queue_path,
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
@@ -125,7 +126,10 @@ class music( commands.Cog ):
             
             with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
                 ydl.download( [url] )    
-            await ctx.send("Successfully added to queue")
+                info = ydl.extract_info( url, download= False )
+            video_title = info.get('title')
+
+            await ctx.send(f'Successfully added \"{video_title}\" to queue')
 
         else:
             await ctx.send("Searching...")
@@ -145,6 +149,7 @@ class music( commands.Cog ):
 
             ydl_opts = {
                 'format': 'bestaudio/best',
+                'default_search': 'auto',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
@@ -154,12 +159,14 @@ class music( commands.Cog ):
 
             with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
                 ydl.download( [url] )
+                info = ydl.extract_info( url, download= False )
+            video_title = info.get('title')
 
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file, "song.mp3")
 
-            await ctx.send("Now Playing")
+            await ctx.send(f'Now playing \"{video_title}\"')
             voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
             voice.source = discord.PCMVolumeTransformer( voice.source )
             voice.source.volume = music_volume
