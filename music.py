@@ -8,12 +8,12 @@ import asyncio
 import youtube_dl
 import os
 import shutil
+import subprocess
 
 #Global Var
 songlist = {}
 music_volume = 0.04
 effect_volume = 0.50
-
 
 def setup( client ):
     client.add_cog( music(client) )
@@ -135,7 +135,9 @@ class music( commands.Cog ):
                     video_title = info.get('title')
                     if video_title == None:
                         video_title = url
-                    await ctx.send(f'Successfully added \"{video_title}\" to queue')
+
+                    embed=discord.Embed(title="Added to Queue", description=video_title, color=0xff1515)
+                    await ctx.send(embed=embed)
                 except:
                     await ctx.send(f'Unable to queue, song is unavailable')
 
@@ -172,8 +174,10 @@ class music( commands.Cog ):
                     video_title = info.get('title')
                     if video_title == None:
                         video_title = url
-                    await ctx.send(f'Now playing \"{video_title}\"')
-                except:
+
+                    embed=discord.Embed(title="Now Playing", description=video_title, color=0xff1515)
+                    await ctx.send(embed=embed)
+                except: 
                     await ctx.send(f'Unable to play, song is unavailable')
 
             for file in os.listdir("./"):
