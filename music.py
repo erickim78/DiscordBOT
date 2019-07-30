@@ -13,7 +13,7 @@ import subprocess
 #Global Var
 songlist = {}
 music_volume = 0.04
-effect_volume = 0.50
+effect_volume = 0.25
 
 def setup( client ):
     client.add_cog( music(client) )
