@@ -119,7 +119,6 @@ class music( commands.Cog ):
 
             ydl_opts = {
                 'format': 'bestaudio/best',
-                'ignoreerrors': 'True',
                 'default_search': 'auto',
                 'outtmpl': queue_path,
                 'postprocessors': [{
@@ -159,7 +158,6 @@ class music( commands.Cog ):
 
             ydl_opts = {
                 'format': 'bestaudio/best',
-                'ignoreerrors': 'True',
                 'default_search': 'auto',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
