@@ -12,9 +12,10 @@ import subprocess
 
 #Global Var
 songlist = {}
-low_volume = 0.06
-medium_volume = 0.15
-high_volume = 0.4
+low_volume = 0.05
+medium_volume = 0.20
+high_volume = 0.5
+current_volume = 0.05
 effect_volume = 0.25
 
 def setup( client ):
@@ -139,6 +140,11 @@ class music( commands.Cog ):
 
                     embed=discord.Embed(title="Added to Queue", description=video_title, color=0xff1515)
                     await ctx.send(embed=embed)
+                    if voice.is_playing() is False:
+                        voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
+                        voice.source = discord.PCMVolumeTransformer( voice.source )
+                        voice.source.volume = current_volume
+
                 except:
                     await ctx.send(f'Unable to queue, song is unavailable')
 
@@ -186,7 +192,7 @@ class music( commands.Cog ):
             
             voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
             voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = low_volume
+            voice.source.volume = current_volume
 
     @commands.command( pass_context = True)
     async def pause(self, ctx):
@@ -229,7 +235,7 @@ class music( commands.Cog ):
                             os.rename(file, 'song.mp3')
                     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                     voice.source = discord.PCMVolumeTransformer( voice.source )
-                    voice.source.volume = low_volume
+                    voice.source.volume = current_volume
                 else:
                     songlist.clear()
                     print("Songlist Clear 1")
@@ -242,7 +248,7 @@ class music( commands.Cog ):
             if os.path.isfile("song.mp3"):
                 voice.play( discord.FFmpegPCMAudio("song.mp3"), after= lambda e: check_songlist() )
                 voice.source = discord.PCMVolumeTransformer( voice.source )
-                voice.source.volume = low_volume
+                voice.source.volume = current_volume
 
         voice = get( client.voice_clients, guild= ctx.guild)
         if voice and voice.is_playing():
@@ -265,26 +271,15 @@ class music( commands.Cog ):
             if os.path.isfile("song.mp3"):
                 os.remove("song.mp3")
 
-    @commands.command( pass_context = True, aliases=['high'] )
-    async def volumehigh(self, ctx):
-        client = self.client
-        voice = get(client.voice_clients, guild= ctx.guild)
-        if voice and voice.is_playing():
-            voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = high_volume
+    @commands.command( pass_context = True )
+    async def volume(self, ctx, value: int):
+        if ctx.voice_client is None:
+            return
 
-    @commands.command( pass_context = True, aliases= ['medium'] )
-    async def volumemedium(self, ctx):
-        client = self.client
-        voice = get(client.voice_clients, guild= ctx.guild)
-        if voice and voice.is_playing():
-            voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = medium_volume
-
-    @commands.command( pass_context = True, aliases= ['low'] )
-    async def volumelow(self, ctx):
-        client = self.client
-        voice = get(client.voice_clients, guild= ctx.guild)
-        if voice and voice.is_playing():
-            voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = low_volume
+        if value > 100:
+            await ctx.send("Please enter a number between 0-100")
+            return
+    
+        ctx.voice_client.source.volume = value / 250
+        current_volume = value / 250
+        await ctx.send(f'Volume set to {value}%'.format(value))
