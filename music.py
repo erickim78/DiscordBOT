@@ -12,7 +12,7 @@ import subprocess
 
 #Global Var
 songlist = {}
-music_volume = 0.05
+music_volume = 0.06
 effect_volume = 0.25
 
 def setup( client ):
