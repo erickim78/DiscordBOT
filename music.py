@@ -12,7 +12,9 @@ import subprocess
 
 #Global Var
 songlist = {}
-music_volume = 0.06
+low_volume = 0.06
+medium_volume = 0.15
+high_volume = 0.4
 effect_volume = 0.25
 
 def setup( client ):
@@ -87,7 +89,7 @@ class music( commands.Cog ):
                             os.rename(file, 'song.mp3')
                     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                     voice.source = discord.PCMVolumeTransformer( voice.source )
-                    voice.source.volume = music_volume
+                    voice.source.volume = low_volume
                 else:
                     songlist.clear()
                     return
@@ -184,7 +186,7 @@ class music( commands.Cog ):
             
             voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
             voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = music_volume
+            voice.source.volume = low_volume
 
     @commands.command( pass_context = True)
     async def pause(self, ctx):
@@ -227,7 +229,7 @@ class music( commands.Cog ):
                             os.rename(file, 'song.mp3')
                     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                     voice.source = discord.PCMVolumeTransformer( voice.source )
-                    voice.source.volume = 0.05
+                    voice.source.volume = low_volume
                 else:
                     songlist.clear()
                     print("Songlist Clear 1")
@@ -240,7 +242,7 @@ class music( commands.Cog ):
             if os.path.isfile("song.mp3"):
                 voice.play( discord.FFmpegPCMAudio("song.mp3"), after= lambda e: check_songlist() )
                 voice.source = discord.PCMVolumeTransformer( voice.source )
-                voice.source.volume = music_volume
+                voice.source.volume = low_volume
 
         voice = get( client.voice_clients, guild= ctx.guild)
         if voice and voice.is_playing():
@@ -250,7 +252,7 @@ class music( commands.Cog ):
             voice.source = discord.PCMVolumeTransformer( voice.source )
             voice.source.volume = effect_volume
 
-    @commands.command( pass_contexxt = True )
+    @commands.command( pass_context = True )
     async def stop(self, ctx):
         client = self.client
         voice = get(client.voice_clients, guild= ctx.guild)
@@ -263,4 +265,26 @@ class music( commands.Cog ):
             if os.path.isfile("song.mp3"):
                 os.remove("song.mp3")
 
+    @commands.command( pass_context = True, aliases=['high'] )
+    async def volumehigh(self, ctx):
+        client = self.client
+        voice = get(client.voice_clients, guild= ctx.guild)
+        if voice and voice.is_playing():
+            voice.source = discord.PCMVolumeTransformer( voice.source )
+            voice.source.volume = high_volume
 
+    @commands.command( pass_context = True, aliases= ['medium'] )
+    async def volumemedium(self, ctx):
+        client = self.client
+        voice = get(client.voice_clients, guild= ctx.guild)
+        if voice and voice.is_playing():
+            voice.source = discord.PCMVolumeTransformer( voice.source )
+            voice.source.volume = medium_volume
+
+    @commands.command( pass_context = True, aliases= ['low'] )
+    async def volumelow(self, ctx):
+        client = self.client
+        voice = get(client.voice_clients, guild= ctx.guild)
+        if voice and voice.is_playing():
+            voice.source = discord.PCMVolumeTransformer( voice.source )
+            voice.source.volume = low_volume
