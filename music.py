@@ -90,7 +90,7 @@ class music( commands.Cog ):
                             os.rename(file, 'song.mp3')
                     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                     voice.source = discord.PCMVolumeTransformer( voice.source )
-                    voice.source.volume = low_volume
+                    voice.source.volume = current_volume
                 else:
                     songlist.clear()
                     return
@@ -141,9 +141,7 @@ class music( commands.Cog ):
                     embed=discord.Embed(title="Added to Queue", description=video_title, color=0xff1515)
                     await ctx.send(embed=embed)
                     if voice.is_playing() is False:
-                        voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
-                        voice.source = discord.PCMVolumeTransformer( voice.source )
-                        voice.source.volume = current_volume
+                        check_songlist()
 
                 except:
                     await ctx.send(f'Unable to queue, song is unavailable')
@@ -192,7 +190,7 @@ class music( commands.Cog ):
             
             voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
             voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = current_volume
+            voice.source.volume = low_volume
 
     @commands.command( pass_context = True)
     async def pause(self, ctx):
@@ -281,5 +279,6 @@ class music( commands.Cog ):
             return
     
         ctx.voice_client.source.volume = value / 250
+        global current_volume
         current_volume = value / 250
         await ctx.send(f'Volume set to {value}%'.format(value))
