@@ -28,3 +28,4 @@ class initial( commands.Cog):
     async def unload(self, ctx, extension):
         client = self.client
         client.unload_extension( f'cogs.{extension}')
+
