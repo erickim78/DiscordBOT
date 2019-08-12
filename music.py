@@ -8,12 +8,12 @@ import asyncio
 import youtube_dl
 import os
 import shutil
+import subprocess
 
 #Global Var
 songlist = {}
-music_volume = 0.05
-effect_volume = 0.50
-
+current_volume = 0.05
+effect_volume = 0.25
 
 def setup( client ):
     client.add_cog( music(client) )
@@ -48,7 +48,12 @@ class music( commands.Cog ):
 
     #Music
     @commands.command( pass_context = True, aliases = ['p'])
-    async def play(self, ctx, url: str):
+    async def play(self, ctx):
+        message = ctx.message.content
+        url = message[6: len(message)]
+        if len(url) == 11:
+            url = " " + url
+        print(url)
         client = self.client
         currentchannel = ctx.message.author.voice.channel
         voice = get( client.voice_clients, guild= ctx.guild)
@@ -80,10 +85,9 @@ class music( commands.Cog ):
                     for file in os.listdir("./"):
                         if file.endswith(".mp3"):
                             os.rename(file, 'song.mp3')
-                    
                     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                     voice.source = discord.PCMVolumeTransformer( voice.source )
-                    voice.source.volume = music_volume
+                    voice.source.volume = current_volume
                 else:
                     songlist.clear()
                     return
@@ -125,11 +129,19 @@ class music( commands.Cog ):
             }
             
             with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
-                ydl.download( [url] )    
-                info = ydl.extract_info( url, download= False )
-            video_title = info.get('title')
+                try:
+                    info = ydl.extract_info( url, download= True )
+                    video_title = info.get('title')
+                    if video_title == None:
+                        video_title = url
 
-            await ctx.send(f'Successfully added \"{video_title}\" to queue')
+                    embed=discord.Embed(title="Added to Queue", description=video_title, color=0xff1515)
+                    await ctx.send(embed=embed)
+                    if voice.is_playing() is False:
+                        check_songlist()
+
+                except:
+                    await ctx.send(f'Unable to queue, song is unavailable')
 
         else:
             await ctx.send("Searching...")
@@ -158,18 +170,24 @@ class music( commands.Cog ):
             }
 
             with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
-                ydl.download( [url] )
-                info = ydl.extract_info( url, download= False )
-            video_title = info.get('title')
+                try:
+                    info = ydl.extract_info( url, download= True )
+                    video_title = info.get('title')
+                    if video_title == None:
+                        video_title = url
+
+                    embed=discord.Embed(title="Now Playing", description=video_title, color=0xff1515)
+                    await ctx.send(embed=embed)
+                except: 
+                    await ctx.send(f'Unable to play, song is unavailable')
 
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file, "song.mp3")
-
-            await ctx.send(f'Now playing \"{video_title}\"')
+            
             voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
             voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = music_volume
+            voice.source.volume = current_volume
 
     @commands.command( pass_context = True)
     async def pause(self, ctx):
@@ -210,10 +228,9 @@ class music( commands.Cog ):
                     for file in os.listdir("./"):
                         if file.endswith(".mp3"):
                             os.rename(file, 'song.mp3')
-                    
                     voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
                     voice.source = discord.PCMVolumeTransformer( voice.source )
-                    voice.source.volume = 0.05
+                    voice.source.volume = current_volume
                 else:
                     songlist.clear()
                     print("Songlist Clear 1")
@@ -224,21 +241,19 @@ class music( commands.Cog ):
 
         def afterskip():
             if os.path.isfile("song.mp3"):
-                voice.play( discord.FFmpegPCMAudio("song.mp3"), after= lambda e:check_songlist() )
+                voice.play( discord.FFmpegPCMAudio("song.mp3"), after= lambda e: check_songlist() )
                 voice.source = discord.PCMVolumeTransformer( voice.source )
-                voice.source.volume = music_volume
+                voice.source.volume = current_volume
 
         voice = get( client.voice_clients, guild= ctx.guild)
         if voice and voice.is_playing():
             voice.stop()
 
-            voice.play( discord.FFmpegPCMAudio("./Audio/join.wav"), after= lambda e:afterskip() )
+            voice.play( discord.FFmpegPCMAudio("./Audio/join.wav"), after= lambda e: afterskip() )
             voice.source = discord.PCMVolumeTransformer( voice.source )
             voice.source.volume = effect_volume
 
-            #voice.stop()      
-
-    @commands.command( pass_contexxt = True )
+    @commands.command( pass_context = True )
     async def stop(self, ctx):
         client = self.client
         voice = get(client.voice_clients, guild= ctx.guild)
@@ -251,4 +266,21 @@ class music( commands.Cog ):
             if os.path.isfile("song.mp3"):
                 os.remove("song.mp3")
 
+    @commands.command( pass_context = True )
+    async def volume(self, ctx, value: int):
+        global current_volume
 
+        if ctx.voice_client is None:
+            current_volume = value / 250
+            embed=discord.Embed(title="Volume", description=f'{value}%'.format(value), color=0xff1515)
+            await ctx.send(embed=embed)
+            return
+
+        if value > 100:
+            await ctx.send("Please enter a number between 0-100")
+            return
+    
+        ctx.voice_client.source.volume = value / 250
+        current_volume = value / 250
+        embed=discord.Embed(title="Volume", description=f'{value}%'.format(value), color=0xff1515)
+        await ctx.send(embed=embed)
