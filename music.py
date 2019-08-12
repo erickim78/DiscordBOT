@@ -12,9 +12,6 @@ import subprocess
 
 #Global Var
 songlist = {}
-low_volume = 0.05
-medium_volume = 0.20
-high_volume = 0.5
 current_volume = 0.05
 effect_volume = 0.25
 
@@ -190,7 +187,7 @@ class music( commands.Cog ):
             
             voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
             voice.source = discord.PCMVolumeTransformer( voice.source )
-            voice.source.volume = low_volume
+            voice.source.volume = current_volume
 
     @commands.command( pass_context = True)
     async def pause(self, ctx):
@@ -271,7 +268,12 @@ class music( commands.Cog ):
 
     @commands.command( pass_context = True )
     async def volume(self, ctx, value: int):
+        global current_volume
+
         if ctx.voice_client is None:
+            current_volume = value / 250
+            embed=discord.Embed(title="Volume", description=f'{value}%'.format(value), color=0xff1515)
+            await ctx.send(embed=embed)
             return
 
         if value > 100:
@@ -279,6 +281,6 @@ class music( commands.Cog ):
             return
     
         ctx.voice_client.source.volume = value / 250
-        global current_volume
         current_volume = value / 250
-        await ctx.send(f'Volume set to {value}%'.format(value))
+        embed=discord.Embed(title="Volume", description=f'{value}%'.format(value), color=0xff1515)
+        await ctx.send(embed=embed)

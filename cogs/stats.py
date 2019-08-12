@@ -208,7 +208,7 @@ class stats( commands.Cog ):
                     total += exp[level]
                     level += 1
 
-                answer = math.ceil( (total-num) / math.floor( score/1000 ) )
+                answer = math.ceil( (total-num) / math.floor( score/3000 ) )
 
                 embed=discord.Embed(color=0xf89221)
                 embed.add_field(name="Result", value=f'It will take {answer} days to max your symbol', inline=False)

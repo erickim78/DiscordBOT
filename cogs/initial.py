@@ -23,9 +23,11 @@ class initial( commands.Cog):
     async def load(self, ctx, extension):
         client = self.client
         client.load_extension( f'cogs.{extension}')
+        print(f'Loading {extension}')
 
     @commands.command()
     async def unload(self, ctx, extension):
         client = self.client
         client.unload_extension( f'cogs.{extension}')
+        print(f'Unloading {extension}')
 
