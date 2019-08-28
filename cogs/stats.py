@@ -43,7 +43,9 @@ class stats( commands.Cog ):
                 "\nPP: " + str(user.pp_raw), inline=True)
             await ctx.send(embed=embed)
         else:
-            ctx.send("User not found")
+            embed=discord.Embed(color=0xfda8f4)
+            embed.add_field(name='Osu! Stats', value="User not found", inline=True)
+            await ctx.send(embed=embed)
 
     @commands.command( pass_context = True )
     async def symbol(self, ctx):
