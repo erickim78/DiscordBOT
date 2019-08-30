@@ -144,53 +144,50 @@ class music( commands.Cog ):
                     await ctx.send(f'Unable to queue, song is unavailable')
         ##bug: sometimes goes to this else statement even when something is playing
         else:
+            await ctx.send("Searching...")
+
+            if os.path.isfile("song.mp3"):
+                os.remove("song.mp3")
+
+            Qexists = os.path.isdir("./Queue")
             try:
-                await ctx.send("Searching...")
-
-                if os.path.isfile("song.mp3"):
-                    os.remove("song.mp3")
-
-                Qexists = os.path.isdir("./Queue")
-                try:
-                    folder = "./Queue"
-                    if Qexists:
-                        shutil.rmtree( folder )
-                except:
-                    print("No Queue")
-
-                voice = get(client.voice_clients, guild= ctx.guild)
-
-                ydl_opts = {
-                    'format': 'bestaudio/best',
-                    'default_search': 'auto',
-                    'postprocessors': [{
-                        'key': 'FFmpegExtractAudio',
-                        'preferredcodec': 'mp3',
-                        'preferredquality': '192',
-                    }],
-                }
-
-                with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
-                    try:
-                        info = ydl.extract_info( url, download= True )
-                        video_title = info.get('title')
-                        if video_title == None:
-                            video_title = url
-
-                        embed=discord.Embed(title="Now Playing", description=video_title, color=0xff1515)
-                        await ctx.send(embed=embed)
-                    except: 
-                        await ctx.send(f'Unable to play, song is unavailable')
-
-                for file in os.listdir("./"):
-                    if file.endswith(".mp3"):
-                        os.rename(file, "song.mp3")
-                
-                voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
-                voice.source = discord.PCMVolumeTransformer( voice.source )
-                voice.source.volume = current_volume
+                folder = "./Queue"
+                if Qexists:
+                    shutil.rmtree( folder )
             except:
-                await ctx.send(f'Error, please try again')
+                print("No Queue")
+
+            voice = get(client.voice_clients, guild= ctx.guild)
+
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'default_search': 'auto',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }],
+            }
+
+            with youtube_dl.YoutubeDL( ydl_opts ) as ydl:
+                try:
+                    info = ydl.extract_info( url, download= True )
+                    video_title = info.get('title')
+                    if video_title == None:
+                        video_title = url
+
+                    embed=discord.Embed(title="Now Playing", description=video_title, color=0xff1515)
+                    await ctx.send(embed=embed)
+                except: 
+                    await ctx.send(f'Unable to play, song is unavailable')
+
+            for file in os.listdir("./"):
+                if file.endswith(".mp3"):
+                    os.rename(file, "song.mp3")
+
+            voice.play( discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_songlist() )
+            voice.source = discord.PCMVolumeTransformer( voice.source )
+            voice.source.volume = current_volume
 
 
     @commands.command( pass_context = True)
