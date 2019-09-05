@@ -141,7 +141,10 @@ class music( commands.Cog ):
 
         if voice and voice.is_playing():
             source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("./Audio/join.wav"))
-            songlist[ctx.guild.id].insert(0, source)
+            if ctx.guild.id in songlist:
+                songlist[ctx.guild.id].insert(0, source)
+            else:
+                songlist[ctx.guild.id] = [source]
             voice.stop()
 
     @commands.command( pass_context = True )
