@@ -111,13 +111,15 @@ class music( commands.Cog ):
                     songlist[ctx.guild.id].append(player)
                 else:
                     songlist[ctx.guild.id] = [player]
-            await ctx.send("Added to Queue")
+            embed=discord.Embed(title="Added to Queue", description=format(player.title), color=0xff1515)
+            await ctx.send(embed=embed)
         else:
             async with ctx.typing():
                 player = await YTDLSource.from_url( url, loop= self.client.loop)
                 players[ctx.guild.id] = player
                 ctx.voice_client.play(player, after=lambda e: check_queue(ctx.guild.id, ctx))
-            await ctx.send('Now Playing: {}'.format(player.title))
+            embed=discord.Embed(title="Now Playing", description=format(player.title), color=0xff1515)
+            await ctx.send(embed=embed)
 
     @commands.command( pass_context = True)
     async def pause(self, ctx):
