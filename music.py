@@ -10,6 +10,8 @@ import os
 import shutil
 import subprocess
 
+from bot import db
+
 #Global Var
 songlist = {}
 players = {}
@@ -37,8 +39,9 @@ ffmpeg_options = {
 
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
-#Helper Function
+#Helper Functions
 def check_queue( id, ctx ):
+    ctx.voice_client.source.volume = current_volume
     if songlist[id] != []:
         player = songlist[id].pop(0)
         players[id] = player
@@ -64,6 +67,8 @@ class YTDLSource( discord.PCMVolumeTransformer ):
         filename = data['url'] if stream else ytdl.prepare_filename(data)
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
+
+#Music COG
 def setup( client ):
     client.add_cog( music(client) )
 
@@ -146,6 +151,7 @@ class music( commands.Cog ):
             else:
                 songlist[ctx.guild.id] = [source]
             voice.stop()
+            ctx.voice_client.source.volume = effect_volume
 
     @commands.command( pass_context = True )
     async def stop(self, ctx):

@@ -13,6 +13,15 @@ import os
 with open( 'config.json') as config_file:
     config = json.load( config_file )
 
+#MYSQL
+import mysql.connector
+pwd = config['mysqlpasswd']
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    passwd=pwd
+)
+
 #Configure Bot
 client = commands.Bot( command_prefix = '!')
 serverid = config['serverid']
