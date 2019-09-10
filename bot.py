@@ -15,11 +15,10 @@ with open( 'config.json') as config_file:
 
 #MYSQL
 import mysql.connector
-pwd = config['mysqlpasswd']
 db = mysql.connector.connect(
-    host="127.0.0.1",
-    user="root",
-    passwd=pwd,
+    host=config['mysqlip'],
+    user=config['mysqluser'],
+    passwd=config['mysqlpasswd'],
     database="discordbot",
     auth_plugin='mysql_native_password'
 )

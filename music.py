@@ -132,18 +132,19 @@ class music( commands.Cog ):
         global cursor
         global database
         tablename = str(ctx.message.author).replace('#','')
+        songname = format(player.title).replace('\'','')
         try:
             cursor.execute(f'CREATE TABLE {tablename} (Song varchar(255), Plays int)')
         except:
             print(f'Table for user {tablename} already exists')
 
-        cursor.execute(f'SELECT * FROM {tablename} WHERE Song = \'{format(player.title)}\'')
+        cursor.execute(f'SELECT * FROM {tablename} WHERE Song = \'{songname}\'')
         exists = cursor.fetchall()
         if exists == []:
             formula = f'INSERT INTO {tablename} (Song, Plays) VALUES (%s, %s)'
-            temp = (format(player.title), 0)
+            temp = (songname, 0)
             cursor.execute(formula, temp)
-        cursor.execute(f'UPDATE {tablename} SET Plays = Plays + 1 WHERE Song = \'{format(player.title)}\'')
+        cursor.execute(f'UPDATE {tablename} SET Plays = Plays + 1 WHERE Song = \'{songname}\'')
         database.commit()
 
 
