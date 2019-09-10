@@ -31,7 +31,6 @@ class games( commands.Cog ):
 
         userid = ctx.message.mentions[0].id
 
-        #hot = 0-8, crazy = 9-17
         i = sum_h = sum_c = 0
         while i < len( str(userid) ):
             if i < 9:

@@ -16,9 +16,11 @@ players = {}
 database = None
 cursor = None
 
+#Sound Variables
 current_volume = 0.05
 effect_volume = 0.25
 
+#YTDL Configuration
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
@@ -30,7 +32,7 @@ ytdl_format_options = {
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
-    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
+    'source_address': '0.0.0.0' #bind to ipv4 since ipv6 addresses cause issues sometimes
 }
 
 ffmpeg_options = {
@@ -38,6 +40,7 @@ ffmpeg_options = {
 }
 
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+
 
 #Helper Functions
 def check_queue( id, ctx ):
@@ -103,12 +106,14 @@ class music( commands.Cog ):
     #Music
     @commands.command( pass_context = True, aliases = ['p'])
     async def play(self, ctx, *, url):
+        #Connect bot to current voice channel
         voice = get( self.client.voice_clients, guild= ctx.guild )
         if voice and voice.is_connected():
             await voice.move_to( ctx.message.author.voice.channel )
         else:
             voice = await ctx.message.author.voice.channel.connect()
 
+        #Add song to queue
         async with ctx.typing():
             player = await YTDLSource.from_url( url, loop= self.client.loop)
             player.volume = current_volume
@@ -146,7 +151,6 @@ class music( commands.Cog ):
             cursor.execute(formula, temp)
         cursor.execute(f'UPDATE {tablename} SET Plays = Plays + 1 WHERE Song = \'{songname}\'')
         database.commit()
-
 
     async def pause(self, ctx):
         voice = get(self.client.voice_clients, guild= ctx.guild)

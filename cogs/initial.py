@@ -21,6 +21,7 @@ class initial( commands.Cog ):
     async def on_ready(self):
         print('BOT is running.')
 
+    #Cog Commands
     @commands.command()
     async def load(self, ctx, extension):
         self.client.load_extension( f'cogs.{extension}')
@@ -31,6 +32,7 @@ class initial( commands.Cog ):
         self.client.unload_extension( f'cogs.{extension}')
         print(f'Unloading {extension}')
 
+    #Close Script
     @commands.command()
     async def quit(self, ctx):
         voice = get( self.client.voice_clients, guild=ctx.guild )
