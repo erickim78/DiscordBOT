@@ -17,9 +17,10 @@ with open( 'config.json') as config_file:
 import mysql.connector
 pwd = config['mysqlpasswd']
 db = mysql.connector.connect(
-    host="localhost",
+    host="127.0.0.1",
     user="root",
-    passwd=pwd
+    passwd=pwd,
+    auth_plugin='mysql_native_password'
 )
 
 #Configure Bot

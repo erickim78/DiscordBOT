@@ -10,11 +10,10 @@ import os
 import shutil
 import subprocess
 
-from bot import db
-
-#Global Var
+#Global Variables
 songlist = {}
 players = {}
+database = None
 
 current_volume = 0.05
 effect_volume = 0.25
@@ -76,12 +75,13 @@ class music( commands.Cog ):
 
     def __init__(self, client):
         self.client = client
+        from bot import db
+        database = db
 
     #Voice Channel Movement
     @commands.command(aliases= ['summon', 'connect'])
     async def join(self, ctx):
         client = self.client
-        global voice
         currentchannel = ctx.message.author.voice.channel
         voice = get( client.voice_clients, guild= ctx.guild )
 
