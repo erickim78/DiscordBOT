@@ -14,6 +14,7 @@ import subprocess
 songlist = {}
 players = {}
 database = None
+cursor = None
 
 current_volume = 0.05
 effect_volume = 0.25
@@ -40,7 +41,6 @@ ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
 #Helper Functions
 def check_queue( id, ctx ):
-    ctx.voice_client.source.volume = current_volume
     if songlist[id] != []:
         player = songlist[id].pop(0)
         players[id] = player
@@ -76,14 +76,16 @@ class music( commands.Cog ):
     def __init__(self, client):
         self.client = client
         from bot import db
+        global cursor
+        global database
         database = db
+        cursor = database.cursor()
 
     #Voice Channel Movement
     @commands.command(aliases= ['summon', 'connect'])
     async def join(self, ctx):
-        client = self.client
         currentchannel = ctx.message.author.voice.channel
-        voice = get( client.voice_clients, guild= ctx.guild )
+        voice = get( self.client.voice_clients, guild= ctx.guild )
 
         if voice and voice.is_connected():
             await voice.move_to( currentchannel )
@@ -91,14 +93,12 @@ class music( commands.Cog ):
             voice = await currentchannel.connect()
             print(f'The bot has connected to {currentchannel}')
 
-    @commands.command( pass_context = True, aliases = ['exit', 'kick'])
+    @commands.command( pass_context = True, aliases = ['kick'])
     async def leave(self, ctx):
-        client = self.client
-        voice = get( client.voice_clients, guild=ctx.guild )
+        voice = get( self.client.voice_clients, guild=ctx.guild )
 
         if voice and voice.is_connected():
             await voice.disconnect()
-            print("The bot has disconnected from voice chat")
 
     #Music
     @commands.command( pass_context = True, aliases = ['p'])
@@ -109,34 +109,52 @@ class music( commands.Cog ):
         else:
             voice = await ctx.message.author.voice.channel.connect()
 
-        if voice and voice.is_playing():
-            async with ctx.typing():
-                player = await YTDLSource.from_url( url, loop= self.client.loop)
+        async with ctx.typing():
+            player = await YTDLSource.from_url( url, loop= self.client.loop)
+            player.volume = current_volume
+
+            if voice and voice.is_playing():
                 if ctx.guild.id in songlist:
                     songlist[ctx.guild.id].append(player)
                 else:
                     songlist[ctx.guild.id] = [player]
-            embed=discord.Embed(title="Added to Queue", description=format(player.title), color=0xff1515)
-            await ctx.send(embed=embed)
-        else:
-            async with ctx.typing():
-                player = await YTDLSource.from_url( url, loop= self.client.loop)
+
+                embed=discord.Embed(title="Added to Queue", description=format(player.title), color=0xff1515)
+                await ctx.send(embed=embed)
+            else:
                 players[ctx.guild.id] = player
                 ctx.voice_client.play(player, after=lambda e: check_queue(ctx.guild.id, ctx))
-            embed=discord.Embed(title="Now Playing", description=format(player.title), color=0xff1515)
-            await ctx.send(embed=embed)
 
-    @commands.command( pass_context = True)
+                embed=discord.Embed(title="Now Playing", description=format(player.title), color=0xff1515)
+                await ctx.send(embed=embed)
+
+        #MYSQL DB Update
+        global cursor
+        global database
+        tablename = str(ctx.message.author).replace('#','')
+        try:
+            cursor.execute(f'CREATE TABLE {tablename} (Song varchar(255), Plays int)')
+        except:
+            print(f'Table for user {tablename} already exists')
+
+        cursor.execute(f'SELECT * FROM {tablename} WHERE Song = \'{format(player.title)}\'')
+        exists = cursor.fetchall()
+        if exists == []:
+            formula = f'INSERT INTO {tablename} (Song, Plays) VALUES (%s, %s)'
+            temp = (format(player.title), 0)
+            cursor.execute(formula, temp)
+        cursor.execute(f'UPDATE {tablename} SET Plays = Plays + 1 WHERE Song = \'{format(player.title)}\'')
+        database.commit()
+
+
     async def pause(self, ctx):
-        client = self.client
-        voice = get(client.voice_clients, guild= ctx.guild)
+        voice = get(self.client.voice_clients, guild= ctx.guild)
         if voice and voice.is_playing():
             voice.pause()
 
     @commands.command( pass_context = True)
     async def resume(self, ctx):
-        client = self.client
-        voice = get(client.voice_clients, guild= ctx.guild)
+        voice = get(self.client.voice_clients, guild= ctx.guild)
         if voice and voice.is_paused():
             voice.resume()
 
@@ -146,12 +164,12 @@ class music( commands.Cog ):
 
         if voice and voice.is_playing():
             source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("./Audio/join.wav"))
+            source.volume = effect_volume
             if ctx.guild.id in songlist:
                 songlist[ctx.guild.id].insert(0, source)
             else:
                 songlist[ctx.guild.id] = [source]
             voice.stop()
-            ctx.voice_client.source.volume = effect_volume
 
     @commands.command( pass_context = True )
     async def stop(self, ctx):

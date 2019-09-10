@@ -1,16 +1,18 @@
 #Discord Imports
 import discord
 from discord.ext import commands
+from discord.utils import get
 
 #MISC Imports
 import asyncio
+import sys
 
 
 def setup( client ):
     client.add_cog( initial(client) )
 
 
-class initial( commands.Cog):
+class initial( commands.Cog ):
 
     def __init__(self, client):
         self.client = client
@@ -21,13 +23,20 @@ class initial( commands.Cog):
 
     @commands.command()
     async def load(self, ctx, extension):
-        client = self.client
-        client.load_extension( f'cogs.{extension}')
+        self.client.load_extension( f'cogs.{extension}')
         print(f'Loading {extension}')
 
     @commands.command()
     async def unload(self, ctx, extension):
-        client = self.client
-        client.unload_extension( f'cogs.{extension}')
+        self.client.unload_extension( f'cogs.{extension}')
         print(f'Unloading {extension}')
+
+    @commands.command()
+    async def quit(self, ctx):
+        voice = get( self.client.voice_clients, guild=ctx.guild )
+        if voice and voice.is_connected():
+            await voice.disconnect()
+        sys.exit()
+
+
 

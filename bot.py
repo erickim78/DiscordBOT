@@ -20,8 +20,10 @@ db = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
     passwd=pwd,
+    database="discordbot",
     auth_plugin='mysql_native_password'
 )
+
 
 #Configure Bot
 client = commands.Bot( command_prefix = '!')

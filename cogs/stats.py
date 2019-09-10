@@ -22,7 +22,7 @@ class stats( commands.Cog ):
     def __init__(self, client):
         self.client = client
     
-    """
+    
     @commands.command( pass_context = True )
     async def osu(self, ctx, username: str):
         apikey = config['osuapikey']
@@ -47,7 +47,7 @@ class stats( commands.Cog ):
             embed=discord.Embed(color=0xfda8f4)
             embed.add_field(name='Osu! Stats', value="User not found", inline=True)
             await ctx.send(embed=embed)
-    """
+
 
     @commands.command( pass_context = True )
     async def symbol(self, ctx):
