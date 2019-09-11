@@ -1,3 +1,4 @@
 #Discord Bot
 
-Edited Readme
+TO DO:
+!mstats: remove try except block
