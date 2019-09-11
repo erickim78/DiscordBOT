@@ -32,7 +32,7 @@ class initial( commands.Cog ):
         self.client.unload_extension( f'cogs.{extension}')
         print(f'Unloading {extension}')
 
-    #Close Script
+    #Close Script 
     @commands.command()
     async def quit(self, ctx):
         voice = get( self.client.voice_clients, guild=ctx.guild )

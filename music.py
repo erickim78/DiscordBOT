@@ -12,6 +12,7 @@ import subprocess
 
 #Global Variables
 songlist = {}
+songnames = {}
 players = {}
 database = None
 cursor = None
@@ -44,6 +45,7 @@ ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
 #Helper Functions
 def check_queue( id, ctx ):
+    songnames[id].pop(0)
     if songlist[id] != []:
         player = songlist[id].pop(0)
         players[id] = player
@@ -119,6 +121,7 @@ class music( commands.Cog ):
             player.volume = current_volume
 
             if voice and voice.is_playing():
+                songnames[ctx.guild.id].append( format(player.title) )
                 if ctx.guild.id in songlist:
                     songlist[ctx.guild.id].append(player)
                 else:
@@ -128,8 +131,9 @@ class music( commands.Cog ):
                 await ctx.send(embed=embed)
             else:
                 players[ctx.guild.id] = player
-                ctx.voice_client.play(player, after=lambda e: check_queue(ctx.guild.id, ctx))
+                songnames[ctx.guild.id] = [ format(player.title) ]
 
+                ctx.voice_client.play(player, after=lambda e: check_queue(ctx.guild.id, ctx))
                 embed=discord.Embed(title="Now Playing", description=format(player.title), color=0xff1515)
                 await ctx.send(embed=embed)
 
@@ -138,20 +142,22 @@ class music( commands.Cog ):
         global database
         tablename = str(ctx.message.author).replace('#','')
         songname = format(player.title).replace('\'','')
-        try:
+        try: #Create table if one doesnt exist for user
             cursor.execute(f'CREATE TABLE {tablename} (Song varchar(255), Plays int)')
         except:
             print(f'Table for user {tablename} already exists')
 
-        cursor.execute(f'SELECT * FROM {tablename} WHERE Song = \'{songname}\'')
+        cursor.execute(f'SELECT * FROM {tablename} WHERE Song = \'{songname}\'') #Check if song has already been played
         exists = cursor.fetchall()
         if exists == []:
-            formula = f'INSERT INTO {tablename} (Song, Plays) VALUES (%s, %s)'
+            formula = f'INSERT INTO {tablename} (Song, Plays) VALUES (%s, %s)' #If not, insert song
             temp = (songname, 0)
             cursor.execute(formula, temp)
-        cursor.execute(f'UPDATE {tablename} SET Plays = Plays + 1 WHERE Song = \'{songname}\'')
+        cursor.execute(f'UPDATE {tablename} SET Plays = Plays + 1 WHERE Song = \'{songname}\'') #Update play count
+        cursor.execute(f'ALTER TABLE {tablename} ORDER BY Plays DESC') #Sort table by playcount descending
         database.commit()
 
+    @commands.command( pass_context = True )
     async def pause(self, ctx):
         voice = get(self.client.voice_clients, guild= ctx.guild)
         if voice and voice.is_playing():
@@ -170,6 +176,7 @@ class music( commands.Cog ):
         if voice and voice.is_playing():
             source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("./Audio/join.wav"))
             source.volume = effect_volume
+            songnames[ctx.guild.id].insert(0, "Placeholder")
             if ctx.guild.id in songlist:
                 songlist[ctx.guild.id].insert(0, source)
             else:
@@ -206,3 +213,23 @@ class music( commands.Cog ):
         current_volume = value / 250
         embed=discord.Embed(title="Volume", description=f'{value}%'.format(value), color=0xff1515)
         await ctx.send(embed=embed)
+
+    @commands.command( pass_context = True, aliases = ['q'] )
+    async def queue(self, ctx):
+        voice = get( self.client.voice_clients, guild= ctx.guild )
+        if (voice is None) or (voice and voice.is_playing() is False):
+            embed=discord.Embed(title="QUEUE", description=f'The Queue is empty.', color=0xff1515)
+            await ctx.send(embed=embed)
+            return
+
+        queuelist = f'Now Playing: {songnames[ctx.guild.id][0]}\n------------------------------------------'
+        count = 0
+        for item in songnames[ctx.guild.id]:
+            if count > 0:
+                queuelist = queuelist + f'\n{count}) {item}'
+            count += 1
+
+        embed=discord.Embed(title="QUEUE", description=queuelist, color=0xff1515)
+        await ctx.send(embed=embed)
+
+
