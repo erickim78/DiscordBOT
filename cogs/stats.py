@@ -9,10 +9,9 @@ import json
 import math
 from pyosu import OsuApi
 
-#API instanstiation
+#Config File
 with open( 'config.json') as config_file:
     config = json.load( config_file )
-osu_a = OsuApi( config['osuapikey'] )
 
 def setup( client ):
     client.add_cog( stats(client) )
@@ -22,15 +21,15 @@ class stats( commands.Cog ):
     def __init__(self, client):
         self.client = client
     
-    """
+    
     @commands.command( pass_context = True )
     async def osu(self, ctx, username: str):
+        #Instantiate API
         apikey = config['osuapikey']
         osu_a = OsuApi( apikey )
 
         user = await osu_a.get_user( username )
         topscore = await osu_a.get_user_best( username )
-
 
         if user != None :
             beatmap = await osu_a.get_beatmap( beatmap_id = topscore.beatmap_id )
@@ -47,7 +46,7 @@ class stats( commands.Cog ):
             embed=discord.Embed(color=0xfda8f4)
             embed.add_field(name='Osu! Stats', value="User not found", inline=True)
             await ctx.send(embed=embed)
-    """
+
 
     @commands.command( pass_context = True )
     async def symbol(self, ctx):

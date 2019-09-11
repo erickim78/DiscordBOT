@@ -2,24 +2,22 @@
 import discord
 from discord.ext import commands
 
-#Importing MAL Py Wrapper
-#from jikanpy import Jikan
-
 #Misc Imports
 import json
 import os
 
-#Config File Usage
+#Config File
 with open( 'config.json') as config_file:
     config = json.load( config_file )
 
 #MYSQL
 import mysql.connector
-pwd = config['mysqlpasswd']
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd=pwd
+    host=config['mysqlip'],
+    user=config['mysqluser'],
+    passwd=config['mysqlpasswd'],
+    database="discordbot",
+    auth_plugin='mysql_native_password'
 )
 
 #Configure Bot

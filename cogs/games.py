@@ -19,7 +19,8 @@ class games( commands.Cog ):
     def __init__(self, client):
         self.client = client
 
-    @commands.command( pass_context = True, aliases=['Rategirl','rateGirl'])
+    #Credit to NadekoBOT for game idea
+    @commands.command( pass_context = True, aliases=['Rategirl','rateGirl'] )
     async def rategirl( self, ctx ):
         client= self.client
         if len(ctx.message.mentions) == 0:
@@ -30,7 +31,6 @@ class games( commands.Cog ):
 
         userid = ctx.message.mentions[0].id
 
-        #hot = 0-8, crazy = 9-17
         i = sum_h = sum_c = 0
         while i < len( str(userid) ):
             if i < 9:
@@ -55,6 +55,12 @@ class games( commands.Cog ):
         if hot < 8 and crazy < 9:
             crazy = round( crazy + 1.00, 2)
 
+        if hot > 9.99:
+            hot = 9.99
+        
+        if crazy > 9.99:
+            crazy = 9.99
+
         if hot < 5 :
             advice =  text['1']
         elif hot > 5:
@@ -74,7 +80,7 @@ class games( commands.Cog ):
         imgURL = "https://i.imgur.com/hynRXh6.jpg"
         embed=discord.Embed(color=0x1dee17)
         embed.set_image(url = imgURL)
-        embed.add_field(name=f'Rating for:', value=f'{ctx.message.mentions[0].mention}', inline=False)
+        embed.add_field(name=f'Rating For:', value=f'{ctx.message.mentions[0].mention}', inline=False)
         embed.add_field(name="Hot:", value=hot, inline=True)
         embed.add_field(name="Crazy:", value=crazy, inline=True)
         embed.add_field(name="Advice", value=advice, inline=False)
