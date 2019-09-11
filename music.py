@@ -138,8 +138,6 @@ class music( commands.Cog ):
                 await ctx.send(embed=embed)
 
         #MYSQL DB Update
-        global cursor
-        global database
         tablename = str(ctx.message.author).replace('#','')
         songname = format(player.title).replace('\'','')
         try: #Create table if one doesnt exist for user
@@ -232,4 +230,35 @@ class music( commands.Cog ):
         embed=discord.Embed(title="QUEUE", description=queuelist, color=0xff1515)
         await ctx.send(embed=embed)
 
+    @commands.command( pass_context = True, aliases = ['musicstats'] )
+    async def mstats(self, ctx):
+        if len(ctx.message.mentions) == 0:
+            embed=discord.Embed(color=0xff1515)
+            embed.add_field(name="Incomplete Command", value="Example: !musicstats '@user'", inline=True)
+            await ctx.send(embed=embed)
+            return
 
+        tablename = str(ctx.message.mentions[0]).replace('#','')
+        cursor.execute(f'SELECT * FROM {tablename} WHERE Plays > 1')
+        musiclist = cursor.fetchall()
+
+        result = f''
+        count = 1
+        for item in musiclist:
+            if count < 6:
+                if count > 1:
+                    result += f'\n\n{count}) {item[0]} | Plays: {item[1]}'
+                else:
+                    result += f'{count}) {item[0]} | Plays: {item[1]}'
+            count += 1
+
+        embed=discord.Embed(color=0xff1515)
+        embed.add_field(name=f'Stats For:', value=f'{ctx.message.mentions[0].mention}', inline=False)
+        embed.add_field(name="Most Played Songs:", value=result, inline=False)
+
+        try:
+            await ctx.send(embed=embed)
+        except:
+            embed=discord.Embed(color=0xff1515)
+            embed.add_field(name="Music Stats", value=f'No Data for {ctx.message.mentions[0].mention}', inline=True)
+            await ctx.send(embed=embed)

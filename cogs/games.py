@@ -20,7 +20,7 @@ class games( commands.Cog ):
         self.client = client
 
     #Credit to NadekoBOT for game idea
-    @commands.command( pass_context = True, aliases=['Rategirl','rateGirl'])
+    @commands.command( pass_context = True, aliases=['Rategirl','rateGirl'] )
     async def rategirl( self, ctx ):
         client= self.client
         if len(ctx.message.mentions) == 0:
@@ -80,7 +80,7 @@ class games( commands.Cog ):
         imgURL = "https://i.imgur.com/hynRXh6.jpg"
         embed=discord.Embed(color=0x1dee17)
         embed.set_image(url = imgURL)
-        embed.add_field(name=f'Rating for:', value=f'{ctx.message.mentions[0].mention}', inline=False)
+        embed.add_field(name=f'Rating For:', value=f'{ctx.message.mentions[0].mention}', inline=False)
         embed.add_field(name="Hot:", value=hot, inline=True)
         embed.add_field(name="Crazy:", value=crazy, inline=True)
         embed.add_field(name="Advice", value=advice, inline=False)
