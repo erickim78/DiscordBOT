@@ -1,4 +1,4 @@
 #Discord Bot
 
 TO DO:
-!mstats: remove try except block
+remove try except block in !mstats
