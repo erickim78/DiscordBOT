@@ -84,7 +84,7 @@ class music( commands.Cog ):
         global cursor
         global database
         database = db
-        cursor = database.cursor()
+        cursor = database.cursor(buffered=True)
 
     #Voice Channel Movement
     @commands.command(aliases= ['summon', 'connect'])
@@ -256,12 +256,12 @@ class music( commands.Cog ):
         for item in musiclist:
             if count < 6:
                 if count > 1:
-                    result += f'\n\n*{count}) {item[0]}* | **Plays: {item[1]}**'
+                    result += f'\n\n*{count}) {item[0]}* \n **Plays: {item[1]}**'
                 else:
-                    result += f'*{count}) {item[0]}* | **Plays: {item[1]}**'
+                    result += f'*{count}) {item[0]}* \n **Plays: {item[1]}**'
             count += 1
 
         embed=discord.Embed(color=0xff1515)
-        embed.add_field(name=f'Stats For:', value=f'{ctx.message.mentions[0].mention}', inline=False)
+        embed.add_field(name=f'Music Stats For:', value=f'{ctx.message.mentions[0].mention}', inline=False)
         embed.add_field(name="Most Played Songs:", value=result, inline=False)
         await ctx.send(embed=embed)
