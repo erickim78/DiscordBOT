@@ -233,18 +233,17 @@ class music( commands.Cog ):
     @commands.command( pass_context = True, aliases = ['musicstats'] )
     async def mstats(self, ctx):
         if len(ctx.message.mentions) == 0:
-            embed=discord.Embed(color=0xff1515)
-            embed.add_field(name="Incomplete Command", value="Example: !musicstats '@user'", inline=True)
-            await ctx.send(embed=embed)
-            return
-
-        tablename = str(ctx.message.mentions[0]).replace('#','')
+            username = ctx.message.author
+        else:
+            username = ctx.message.mentions[0]
+        
+        tablename = str(username).replace('#','')
 
         try:
             cursor.execute(f'SELECT * FROM {tablename} WHERE Plays > 0')
         except:
             embed=discord.Embed(color=0xff1515)
-            embed.add_field(name="Music Stats", value=f'No Data for {ctx.message.mentions[0].mention}', inline=True)
+            embed.add_field(name="Music Stats", value=f'No Data for {username.mention}', inline=True)
             await ctx.send(embed=embed)
             return
 
@@ -262,6 +261,6 @@ class music( commands.Cog ):
             count += 1
 
         embed=discord.Embed(color=0xff1515)
-        embed.add_field(name=f'Music Stats For:', value=f'{ctx.message.mentions[0].mention}', inline=False)
+        embed.add_field(name=f'Music Stats For:', value=f'{username.mention}', inline=False)
         embed.add_field(name="Most Played Songs:", value=result, inline=False)
         await ctx.send(embed=embed)
