@@ -24,12 +24,11 @@ class games( commands.Cog ):
     async def rategirl( self, ctx ):
         client= self.client
         if len(ctx.message.mentions) == 0:
-            embed=discord.Embed(color=0x1dee17)
-            embed.add_field(name="Incomplete Command", value="Example: !rategirl '@user'", inline=True)
-            await ctx.send(embed=embed)
-            return
+            username = ctx.message.author
+        else:
+            username = ctx.message.mentions[0]
 
-        userid = ctx.message.mentions[0].id
+        userid = username.id
 
         i = sum_h = sum_c = 0
         while i < len( str(userid) ):
@@ -80,7 +79,7 @@ class games( commands.Cog ):
         imgURL = "https://i.imgur.com/hynRXh6.jpg"
         embed=discord.Embed(color=0x1dee17)
         embed.set_image(url = imgURL)
-        embed.add_field(name=f'Rating For:', value=f'{ctx.message.mentions[0].mention}', inline=False)
+        embed.add_field(name=f'Rating For:', value=f'{username.mention}', inline=False)
         embed.add_field(name="Hot:", value=hot, inline=True)
         embed.add_field(name="Crazy:", value=crazy, inline=True)
         embed.add_field(name="Advice", value=advice, inline=False)
